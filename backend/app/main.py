@@ -1,8 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI 
+from app.api.main import api_router
 
 app = FastAPI()
 
-
-@app.post("/api/search")
-def search_stats():
-    pass
+app.include_router(api_router, prefix="/api")
