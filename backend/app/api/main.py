@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from app.api.routes import season, team, match, referee
+
+from app.api.routes import match, referee, season, team
 
 api_router = APIRouter()
 api_router.include_router(season.router, prefix="/season", tags=["seasons"])
