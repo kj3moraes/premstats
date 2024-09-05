@@ -1,7 +1,7 @@
 from datetime import date, time
 from typing import List, Optional
 
-from sqlmodel import Date, Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 
 class Season(SQLModel, table=True):

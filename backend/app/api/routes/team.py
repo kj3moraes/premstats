@@ -2,13 +2,13 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from app.core.db import get_db
+from app.core.db import get_session
 from app.models import Team
 
 router = APIRouter()
 
 @router.post("/add", response_model=Team)
-def create_team(team: Team, session: Session = Depends(get_db)):
+def create_team(team: Team, session: Session = Depends(get_session)):
     session.add(team)
     session.commit()
     session.refresh(team)
@@ -16,13 +16,13 @@ def create_team(team: Team, session: Session = Depends(get_db)):
 
 
 @router.get("/list", response_model=List[Team])
-def read_teams(skip: int = 0, limit: int = 100, session: Session = Depends(get_db)):
+def read_teams(skip: int = 0, limit: int = 100, session: Session = Depends(get_session)):
     teams = session.exec(select(Team).offset(skip).limit(limit)).all()
     return teams
 
 
 @router.get("/get/{team_id}", response_model=Team)
-def read_team(team_id: int, session: Session = Depends(get_db)):
+def read_team(team_id: int, session: Session = Depends(get_session)):
     team = session.get(Team, team_id)
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")
@@ -30,7 +30,7 @@ def read_team(team_id: int, session: Session = Depends(get_db)):
 
 
 @router.put("/update/{team_id}", response_model=Team)
-def update_team(team_id: int, team: Team, session: Session = Depends(get_db)):
+def update_team(team_id: int, team: Team, session: Session = Depends(get_session)):
     db_team = session.get(Team, team_id)
     if not db_team:
         raise HTTPException(status_code=404, detail="Team not found")
@@ -44,7 +44,7 @@ def update_team(team_id: int, team: Team, session: Session = Depends(get_db)):
 
 
 @router.delete("/delete/{team_id}")
-def delete_team(team_id: int, session: Session = Depends(get_db)):
+def delete_team(team_id: int, session: Session = Depends(get_session)):
     team = session.get(Team, team_id)
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")
