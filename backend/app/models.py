@@ -52,13 +52,13 @@ class Match(SQLModel, table=True):
     match_time: time = Field(description="Match Kick-off Time (HH:MM)")
 
     # Team Relationships
-    home_team_name: int = Field(foreign_key="team.name", description="Name of the Home Team")
-    away_team_name: int = Field(foreign_key="team.name", description="Name of the Away Team")
+    home_team_name: str = Field(foreign_key="team.name", description="Name of the Home Team")
+    away_team_name: str = Field(foreign_key="team.name", description="Name of the Away Team")
     home_team: Team = Relationship(back_populates="home_matches")
     away_team: Team = Relationship(back_populates="away_matches")
 
     # Referee Relationship
-    referee_name: Optional[int] = Field(
+    referee_name: Optional[str] = Field(
         default=None, foreign_key="referee.name", description="ID of the Referee"
     )
     referee: Optional[Referee] = Relationship(back_populates="matches")
