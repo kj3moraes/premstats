@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "premstats"
+version = "0.1.0"
+description = ""
+authors = ["Keane Moraes <lordvader3002@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.112.2"
+SQLAlchemy = "^2.0.32"
+pydantic = "^2.8.2"
+uvicorn = "^0.30.6"
+alembic = "^1.13.2"
+pydantic-settings = "^2.4.0"
+sqlmodel = "^0.0.22"
+psycopg = "^3.2.1"
+tenacity = "^9.0.0"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.8.0"
+isort = {extras = ["black"], version = "^5.13.2"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
