@@ -1,3 +1,6 @@
+""" This Python file merely tests whether the database is up. 
+"""
+
 from app.core.db import engine
 from tenacity import retry, after_log, before_log, stop_after_attempt, wait_fixed
 import logging
