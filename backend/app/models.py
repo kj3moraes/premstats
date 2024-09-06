@@ -8,8 +8,8 @@ class Season(SQLModel, table=True):
     """
     Represents an entire season
     """
-
-    name: str = Field(index=True, unique=True, description="Season years", primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True, unique=True, description="Season years")
 
     matches: List["Match"] = Relationship(back_populates="season")
 
@@ -18,7 +18,8 @@ class Team(SQLModel, table=True):
     """
     Represents a football team.
     """
-    name: str = Field(index=True, unique=True, description="Name of the football team", primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True, unique=True, description="Name of the football team")
     
     # Relationships
     home_matches: List["Match"] = Relationship(
@@ -36,7 +37,8 @@ class Referee(SQLModel, table=True):
     Represents a match referee.
     """
 
-    name: str = Field(index=True, unique=True, description="Name of the referee", primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True, unique=True, description="Name of the referee")
 
     # Relationships
     matches: List["Match"] = Relationship(back_populates="referee")
