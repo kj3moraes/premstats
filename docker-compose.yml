@@ -41,8 +41,8 @@ services:
     ports:
       - 8000:80
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/check"]
-      interval: 1s
+      test: ["CMD", "curl", "-f", "http://localhost:80/check"]
+      interval: 5s
       timeout: 5s
       retries: 10
 
@@ -50,7 +50,7 @@ services:
       context: ./backend
       args:
         INSTALL_DEV: ${INSTALL_DEV-false}
-    platform: linux/amd64 # Patch for M1 Mac
+    platform: linux/amd64 # Patch for Arm Macs
 
 volumes:
   app-db-data:
