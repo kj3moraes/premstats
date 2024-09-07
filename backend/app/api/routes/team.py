@@ -1,13 +1,13 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from app.core.db import get_session
 from app.models import Team
 
 router = APIRouter()
 
-@router.post("/add", response_model=Team)
+@router.post("/add", response_model=Team, status_code=status.HTTP_201_CREATED)
 def create_team(team: Team, session: Session = Depends(get_session)):
     session.add(team)
     session.commit()
@@ -43,11 +43,10 @@ def update_team(team_id: int, team: Team, session: Session = Depends(get_session
     return db_team
 
 
-@router.delete("/delete/{team_id}")
+@router.delete("/delete/{team_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_team(team_id: int, session: Session = Depends(get_session)):
     team = session.get(Team, team_id)
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")
     session.delete(team)
     session.commit()
-    return {"ok": True}

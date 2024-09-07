@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
 from app.core.db import get_session
 from app.models import Match
@@ -8,12 +8,12 @@ from app.models import Match
 router = APIRouter()
 
 # Match CRUD operations
-@router.post("/add", response_model=Match)
+@router.post("/add", response_model=Match, status_code=status.HTTP_201_CREATED)
 def create_match(match: Match, session: Session = Depends(get_session)):
     session.add(match)
     session.commit()
     session.refresh(match)
-    return match
+    return match 
 
 
 @router.get("/list", response_model=List[Match])
@@ -51,4 +51,3 @@ def delete_match(match_id: int, session: Session = Depends(get_session)):
         raise HTTPException(status_code=404, detail="Match not found")
     session.delete(match)
     session.commit()
-    return {"ok": True}

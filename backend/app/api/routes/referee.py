@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from app.core.db import get_session
 from app.models import Referee
@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 # Referee CRUD operations
-@router.post("/add", response_model=Referee)
+@router.post("/add", response_model=Referee, status_code=status.HTTP_201_CREATED)
 def create_referee(referee: Referee, session: Session = Depends(get_session)):
     session.add(referee)
     session.commit()
@@ -47,11 +47,10 @@ def update_referee(
     return db_referee
 
 
-@router.delete("/delete/{referee_id}")
+@router.delete("/delete/{referee_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_referee(referee_id: int, session: Session = Depends(get_session)):
     referee = session.get(Referee, referee_id)
     if not referee:
         raise HTTPException(status_code=404, detail="Referee not found")
     session.delete(referee)
     session.commit()
-    return {"ok": True}

@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
 from app.core.db import get_session
@@ -9,7 +9,7 @@ from app.models import Season
 router = APIRouter()
 
 
-@router.post("/add", response_model=Season)
+@router.post("/add", response_model=Season, status_code=status.HTTP_201_CREATED)
 def create_season(season: Season, session: Session = Depends(get_session)):
     session.add(season)
     session.commit()
@@ -45,11 +45,10 @@ def update_season(season_id: int, season: Season, session: Session = Depends(get
     return db_season
 
 
-@router.delete("/delete/{season_id}")
+@router.delete("/delete/{season_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_season(season_id: int, session: Session = Depends(get_session)):
     season = session.get(Season, season_id)
     if not season:
         raise HTTPException(status_code=404, detail="Season not found")
     session.delete(season)
     session.commit()
-    return {"ok": True}
