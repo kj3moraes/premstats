@@ -56,7 +56,7 @@ class Match(SQLModel, table=True):
     season: "Season" = Relationship(back_populates="matches")
     division: str = Field(description="League Division")
     match_date: date = Field(description="Match Date (YYYY-MM-DD)")
-    match_time: time = Field(description="Match Kick-off Time (HH:MM)")
+    match_time: Optional[time] = Field(description="Match Kick-off Time (HH:MM)")
     
     # Team Relationships
     home_team_name: str = Field(foreign_key="team.name", description="Name of the Home Team")
@@ -78,9 +78,9 @@ class Match(SQLModel, table=True):
     )
 
     # Half Time Results
-    half_time_home_goals: int = Field(description="Half Time Home Team Goals")
-    half_time_away_goals: int = Field(description="Half Time Away Team Goals")
-    half_time_result: str = Field(
+    half_time_home_goals: Optional[int] = Field(description="Half Time Home Team Goals")
+    half_time_away_goals: Optional[int] = Field(description="Half Time Away Team Goals")
+    half_time_result: Optional[str] = Field(
         description="Half Time Result (H=Home Win, D=Draw, A=Away Win)"
     )
 
