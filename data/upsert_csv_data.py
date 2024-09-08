@@ -24,10 +24,23 @@ BASE_URL = "http://localhost:8000"
 
 
 def parse_date(date_str: str) -> str:
+    """ Parses the date from the CSV file and outputs it in the YYYY-MM-DD
+        format.
+
+    Args:
+        date_str (str): the date string from the CSV column 
+
+    Raises:
+        Exception: if the date cannot be parsed. 
+
+    Returns:
+        str: date in the format YYYY-MM-DD 
+    """
+
     try:
-        date_obj = datetime.strptime(date_str, "%d/%m/%Y").strftime("%Y.%m.%d")
+        date_obj = datetime.strptime(date_str, "%d/%m/%Y").strftime("%Y-%m-%d")
     except ValueError as e:
-        date_obj = datetime.strptime(date_str, "%d/%m/%y").strftime("%Y.%m.%d")
+        date_obj = datetime.strptime(date_str, "%d/%m/%y").strftime("%Y-%m-%d")
     except Exception as e:
         raise Exception("Failed to parse the date ", date_str)
     finally:
@@ -77,75 +90,78 @@ def create_match(season_name, row: Dict[str, Any]):
     season = get_or_create("season", name=season_name)
     home_team = get_or_create("team", name=row["HomeTeam"])
     away_team = get_or_create("team", name=row["AwayTeam"])
-    referee = get_or_create("referee", name=row["Referee"]) if row["Referee"] else None
+    if "Referee" in row:
+        referee = get_or_create("referee", name=row["Referee"]) if row["Referee"] else None
+    else:
+        referee = None
 
     match_data = {
         "season_name": season["name"],
         "division": row["Div"],
         "match_date": parse_date(row["Date"]),
-        "match_time": row["Time"],
+        "match_time": row["Time"] if "Time" in row else None,
         "home_team_name": home_team["name"],
         "away_team_name": away_team["name"],
         "referee_name": referee["name"] if referee else None,
         "full_time_home_goals": int(row["FTHG"]),
         "full_time_away_goals": int(row["FTAG"]),
         "full_time_result": row["FTR"],
-        "half_time_home_goals": int(row["HTHG"]),
-        "half_time_away_goals": int(row["HTAG"]),
-        "half_time_result": row["HTR"],
-        "home_shots": int(row["HS"]) if row["HS"] else None,
-        "away_shots": int(row["AS"]) if row["AS"] else None,
-        "home_shots_on_target": int(row["HST"]) if row["HST"] else None,
-        "away_shots_on_target": int(row["AST"]) if row["AST"] else None,
-        "home_fouls": int(row["HF"]) if row["HF"] else None,
-        "away_fouls": int(row["AF"]) if row["AF"] else None,
-        "home_corners": int(row["HC"]) if row["HC"] else None,
-        "away_corners": int(row["AC"]) if row["AC"] else None,
-        "home_yellow_cards": int(row["HY"]) if row["HY"] else None,
-        "away_yellow_cards": int(row["AY"]) if row["AY"] else None,
-        "home_red_cards": int(row["HR"]) if row["HR"] else None,
-        "away_red_cards": int(row["AR"]) if row["AR"] else None,
-        "bet365_home_win_odds": parse_float(row["B365H"]),
-        "bet365_draw_odds": parse_float(row["B365D"]),
-        "bet365_away_win_odds": parse_float(row["B365A"]),
-        "bet_and_win_home_win_odds": parse_float(row["BWH"]),
-        "bet_and_win_draw_odds": parse_float(row["BWD"]),
-        "bet_and_win_away_win_odds": parse_float(row["BWA"]),
-        "interwetten_home_win_odds": parse_float(row["IWH"]),
-        "interwetten_draw_odds": parse_float(row["IWD"]),
-        "interwetten_away_win_odds": parse_float(row["IWA"]),
-        "pinnacle_home_win_odds": parse_float(row["PSH"]),
-        "pinnacle_draw_odds": parse_float(row["PSD"]),
-        "pinnacle_away_win_odds": parse_float(row["PSA"]),
-        "william_hill_home_win_odds": parse_float(row["WHH"]),
-        "william_hill_draw_odds": parse_float(row["WHD"]),
-        "william_hill_away_win_odds": parse_float(row["WHA"]),
-        "vc_bet_home_win_odds": parse_float(row["VCH"]),
-        "vc_bet_draw_odds": parse_float(row["VCD"]),
-        "vc_bet_away_win_odds": parse_float(row["VCA"]),
-        "max_home_win_odds": parse_float(row["MaxH"]),
-        "max_draw_odds": parse_float(row["MaxD"]),
-        "max_away_win_odds": parse_float(row["MaxA"]),
-        "avg_home_win_odds": parse_float(row["AvgH"]),
-        "avg_draw_odds": parse_float(row["AvgD"]),
-        "avg_away_win_odds": parse_float(row["AvgA"]),
-        "bet365_over_2_5_odds": parse_float(row["B365>2.5"]),
-        "bet365_under_2_5_odds": parse_float(row["B365<2.5"]),
-        "pinnacle_over_2_5_odds": parse_float(row["P>2.5"]),
-        "pinnacle_under_2_5_odds": parse_float(row["P<2.5"]),
-        "max_over_2_5_odds": parse_float(row["Max>2.5"]),
-        "max_under_2_5_odds": parse_float(row["Max<2.5"]),
-        "avg_over_2_5_odds": parse_float(row["Avg>2.5"]),
-        "avg_under_2_5_odds": parse_float(row["Avg<2.5"]),
-        "asian_handicap_line": parse_float(row["AHh"]),
-        "bet365_asian_handicap_home_odds": parse_float(row["B365AHH"]),
-        "bet365_asian_handicap_away_odds": parse_float(row["B365AHA"]),
-        "pinnacle_asian_handicap_home_odds": parse_float(row["PAHH"]),
-        "pinnacle_asian_handicap_away_odds": parse_float(row["PAHA"]),
-        "max_asian_handicap_home_odds": parse_float(row["MaxAHH"]),
-        "max_asian_handicap_away_odds": parse_float(row["MaxAHA"]),
-        "avg_asian_handicap_home_odds": parse_float(row["AvgAHH"]),
-        "avg_asian_handicap_away_odds": parse_float(row["AvgAHA"]),
+        "half_time_home_goals": int(row["HTHG"]) if "HTHG" in row else None,
+        "half_time_away_goals": int(row["HTAG"]) if "HTHG" in row else None,
+        "half_time_result": row["HTR"] if "HTR" in row else None,
+        "home_shots": int(row["HS"]) if "HS" in row and row["HS"] else None,
+        "away_shots": int(row["AS"]) if "AS" in row and row["AS"] else None,
+        "home_shots_on_target": int(row["HST"]) if "HST" in row and row["HST"] else None,
+        "away_shots_on_target": int(row["AST"]) if "AST" in row and row["AST"] else None,
+        "home_fouls": int(row["HF"]) if "HF" in row and row["HF"] else None,
+        "away_fouls": int(row["AF"]) if "AF" in row and row["AF"] else None,
+        "home_corners": int(row["HC"]) if "HC" in row and row["HC"] else None,
+        "away_corners": int(row["AC"]) if "AC" in row and row["AC"] else None,
+        "home_yellow_cards": int(row["HY"]) if "HY" in row and row["HY"] else None,
+        "away_yellow_cards": int(row["AY"]) if "AY" in row and row["AY"] else None,
+        "home_red_cards": int(row["HR"]) if "HR" in row and row["HR"] else None,
+        "away_red_cards": int(row["AR"]) if "AR" in row and row["AR"] else None,
+        "bet365_home_win_odds": parse_float(row["B365H"]) if "B365H" in row else None,
+        "bet365_draw_odds": parse_float(row["B365D"]) if "B365D" in row else None,
+        "bet365_away_win_odds": parse_float(row["B365A"]) if "B365A" in row else None,
+        "bet_and_win_home_win_odds": parse_float(row["BWH"]) if "BWH" in row else None,
+        "bet_and_win_draw_odds": parse_float(row["BWD"]) if "BWD" in row else None,
+        "bet_and_win_away_win_odds": parse_float(row["BWA"]) if "BWA" in row else None,
+        "interwetten_home_win_odds": parse_float(row["IWH"]) if "IWH" in row else None,
+        "interwetten_draw_odds": parse_float(row["IWD"]) if "IWD" in row else None,
+        "interwetten_away_win_odds": parse_float(row["IWA"]) if "IWA" in row else None,
+        "pinnacle_home_win_odds": parse_float(row["PSH"]) if "PSH" in row else None,
+        "pinnacle_draw_odds": parse_float(row["PSD"]) if "PSD" in row else None,
+        "pinnacle_away_win_odds": parse_float(row["PSA"]) if "PSA" in row else None,
+        "william_hill_home_win_odds": parse_float(row["WHH"]) if "WHH" in row else None,
+        "william_hill_draw_odds": parse_float(row["WHD"]) if "WHD" in row else None,
+        "william_hill_away_win_odds": parse_float(row["WHA"]) if "WHA" in row else None,
+        "vc_bet_home_win_odds": parse_float(row["VCH"]) if "VCH" in row else None,
+        "vc_bet_draw_odds": parse_float(row["VCD"]) if "VCD" in row else None,
+        "vc_bet_away_win_odds": parse_float(row["VCA"]) if "VCA" in row else None,
+        "max_home_win_odds": parse_float(row["MaxH"]) if "MaxH" in row else None,
+        "max_draw_odds": parse_float(row["MaxD"]) if "MaxD" in row else None,
+        "max_away_win_odds": parse_float(row["MaxA"]) if "MaxA" in row else None,
+        "avg_home_win_odds": parse_float(row["AvgH"]) if "AvgH" in row else None,
+        "avg_draw_odds": parse_float(row["AvgD"]) if "AvgD" in row else None,
+        "avg_away_win_odds": parse_float(row["AvgA"]) if "AvgA" in row else None,
+        "bet365_over_2_5_odds": parse_float(row["B365>2.5"]) if "B365>2.5" in row else None,
+        "bet365_under_2_5_odds": parse_float(row["B365<2.5"]) if "B365<2.5" in row else None,
+        "pinnacle_over_2_5_odds": parse_float(row["P>2.5"]) if "P>2.5" in row else None,
+        "pinnacle_under_2_5_odds": parse_float(row["P<2.5"]) if "P<2.5" in row else None,
+        "max_over_2_5_odds": parse_float(row["Max>2.5"]) if "Max>2.5" in row else None,
+        "max_under_2_5_odds": parse_float(row["Max<2.5"]) if "Max<2.5" in row else None,
+        "avg_over_2_5_odds": parse_float(row["Avg>2.5"]) if "Avg>2.5" in row else None,
+        "avg_under_2_5_odds": parse_float(row["Avg<2.5"]) if "Avg<2.5" in row else None,
+        "asian_handicap_line": parse_float(row["AHh"]) if "AHh" in row else None,
+        "bet365_asian_handicap_home_odds": parse_float(row["B365AHH"]) if "B365AHH" in row else None,
+        "bet365_asian_handicap_away_odds": parse_float(row["B365AHA"]) if "B365AHA" in row else None,
+        "pinnacle_asian_handicap_home_odds": parse_float(row["PAHH"]) if "PAHH" in row else None,
+        "pinnacle_asian_handicap_away_odds": parse_float(row["PAHA"]) if "PAHA" in row else None,
+        "max_asian_handicap_home_odds": parse_float(row["MaxAHH"]) if "MaxAHH" in row else None,
+        "max_asian_handicap_away_odds": parse_float(row["MaxAHA"]) if "MaxAHA" in row else None,
+        "avg_asian_handicap_home_odds": parse_float(row["AvgAHH"]) if "AvgAHH" in row else None,
+        "avg_asian_handicap_away_odds": parse_float(row["AvgAHA"]) if "AvgAHA" in row else None,
     }
 
     response = requests.post(f"{BASE_URL}/api/match/add", json=match_data)
@@ -181,7 +197,7 @@ def parse_csv(csv_file_path: Path):
     csv_file_name = csv_file_path.stem
     season_name = parse_file_name_to_season(csv_file_name)
     print(f"Parsing data for {season_name} ...")
-    with open(csv_file_path, "r") as csvfile:
+    with open(csv_file_path, "r", encoding="") as csvfile:
         csv_reader = csv.DictReader(csvfile)
         for row in tqdm(csv_reader):
             create_match(season_name, row)
