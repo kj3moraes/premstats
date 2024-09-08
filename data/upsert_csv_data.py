@@ -7,20 +7,21 @@ import sys
 import zipfile
 from argparse import ArgumentParser
 from datetime import datetime
-from os import listdir
-from os.path import isfile, join
+import os
 from pathlib import Path
 from typing import Any, Dict
-from tqdm import tqdm
 
 import requests
+from tqdm import tqdm
 
 parser = ArgumentParser()
 parser.add_argument("zip_path")
 parser.add_argument("base_url")
+parser.add_argument("--no-extract", action="store_true")
 
 # Default to localhost
-BASE_URL = "http://localhost:8000" 
+BASE_URL = "http://localhost:8000"
+
 
 def parse_date(date_str: str) -> str:
     try:
@@ -38,14 +39,14 @@ def parse_float(value: str) -> float:
 
 
 def get_or_create(model: str, **kwargs):
-    """ Gets the specific model instance from the database if it exists. Else creates 
-        it in the database
+    """Gets the specific model instance from the database if it exists. Else creates
+        it in the database.
 
     Args:
-        model (str): model type. Either 'season', 'team', 'referee' 
+        model (str): model type. Either 'season', 'team', 'referee'
 
     Raises:
-        Exception: Throws exception when model type is not valid or 
+        Exception: Throws exception when model type is not valid or
                    the database encounters some exception.
 
     Returns: The info to populate in the match model.
@@ -53,17 +54,17 @@ def get_or_create(model: str, **kwargs):
 
     response = requests.get(f"{BASE_URL}/api/{model}/list", params=kwargs)
     if response.status_code == 200 and response.json():
-        name = kwargs['name'] 
+        name = kwargs["name"]
 
         # WARNING: This would fail if the anything other than a list is provided
-        model_instance_set = set([instance['name'] for instance in response.json()])
-        
-        # Check if the request model name already exists in the database.
-        # If it does, then return the model instance
-        if name in model_instance_set:
-            return response.json()
-   
-    # We can assume here that the model instance does not exist within 
+        instances = response.json()
+        for instance in instances:
+            # Check if the request model name already exists in the database.
+            # If it does, then return the model instance
+            if name == instance["name"]:
+                return instance
+
+    # We can assume here that the model instance does not exist within
     # the database. So we have to create it.
     response = requests.post(f"{BASE_URL}/api/{model}/add", json=kwargs)
     if response.status_code == 201:
@@ -71,8 +72,6 @@ def get_or_create(model: str, **kwargs):
     else:
         raise Exception(f"Failed to create {model}: {response.text}")
 
-
-    
 
 def create_match(season_name, row: Dict[str, Any]):
     season = get_or_create("season", name=season_name)
@@ -163,14 +162,14 @@ def parse_file_name_to_season(csv_file_name: str):
         csv_file_name (str): only file name (without file extension) of the CSV file being parsed.
     """
 
-    match = re.search(r'prem_(\d{2})_(\d{2})_stats', csv_file_name)
+    match = re.search(r"prem_(\d{2})_(\d{2})_stats", csv_file_name)
     if match:
         start_year = int(match.group(1))
         end_year = int(match.group(2))
-        
+
         # Convert to full year format
         full_start_year = (2000 if start_year < 50 else 1900) + start_year
-        
+
         # Format the season string
         season = f"{full_start_year}/{end_year:02d}"
         return f"English Premier League {season} Season"
@@ -213,14 +212,16 @@ if __name__ == "__main__":
     stats_folder_path.mkdir(exist_ok=True)
 
     # Unzip the zip file
-    with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
-        zip_ref.extractall(stats_folder_path)
+    if not args.no_extract:
+        print("Extracting the zip file ...")
+        with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
+            zip_ref.extractall(stats_folder_path)
 
+    # List all the csv files in the extracted directory.
     csv_files = [
-        (stats_folder_path / f) for f in listdir(stats_folder_path) if (stats_folder_path / f).is_file()
+        (stats_folder_path / f)
+        for f in os.listdir(stats_folder_path)
+        if ((stats_folder_path / f).is_file() and (stats_folder_path / f).suffix == ".csv")
     ]
     for csv_file in csv_files:
         parse_csv(csv_file)
-        exit(0)
-    
-     
