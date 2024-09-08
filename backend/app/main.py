@@ -4,7 +4,10 @@ from app.core.config import settings
 from app.api.main import api_router
 from app.pre_start import main
 
-app = FastAPI()
+app = FastAPI(
+    title="premstats",
+    description="Service to query any English Premier League stat."
+)
 
 # Set all CORS enabled origins
 if settings.BACKEND_CORS_ORIGINS:
