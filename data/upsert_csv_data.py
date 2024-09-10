@@ -197,7 +197,7 @@ def parse_csv(csv_file_path: Path):
     csv_file_name = csv_file_path.stem
     season_name = parse_file_name_to_season(csv_file_name)
     print(f"Parsing data for {season_name} ...")
-    with open(csv_file_path, "r", encoding="") as csvfile:
+    with open(csv_file_path, "r", encoding="utf-8") as csvfile:
         csv_reader = csv.DictReader(csvfile)
         for row in tqdm(csv_reader):
             create_match(season_name, row)
