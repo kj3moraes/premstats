@@ -15,9 +15,9 @@ import requests
 from tqdm import tqdm
 
 parser = ArgumentParser()
-parser.add_argument("zip_path")
-parser.add_argument("base_url")
-parser.add_argument("--no-extract", action="store_true")
+parser.add_argument("zip_path", help="The path to the zip file to extract the CSVs from")
+parser.add_argument("base_url", help="The URL for the server")
+parser.add_argument("--no-extract", action="store_true", help="Flag to not extract the zipfile and use the stats/ directory instead.")
 
 # Default to localhost
 BASE_URL = "http://localhost:8000"
