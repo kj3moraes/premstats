@@ -18,7 +18,9 @@ def create_referee(referee: Referee, session: Session = Depends(get_session)):
 
 
 @router.get("/list", response_model=List[Referee])
-def read_referees(skip: int = 0, limit: int = 100, session: Session = Depends(get_session)):
+def read_referees(
+    skip: int = 0, limit: int = 100, session: Session = Depends(get_session)
+):
     referees = session.exec(select(Referee).offset(skip).limit(limit)).all()
     return referees
 

@@ -7,17 +7,20 @@ from app.models import Match
 
 router = APIRouter()
 
+
 # Match CRUD operations
 @router.post("/add", response_model=Match, status_code=status.HTTP_201_CREATED)
 def create_match(match: Match, session: Session = Depends(get_session)):
     session.add(match)
     session.commit()
     session.refresh(match)
-    return match 
+    return match
 
 
 @router.get("/list", response_model=List[Match])
-def read_matches(skip: int = 0, limit: int = 100, session: Session = Depends(get_session)):
+def read_matches(
+    skip: int = 0, limit: int = 100, session: Session = Depends(get_session)
+):
     matches = session.exec(select(Match).offset(skip).limit(limit)).all()
     return matches
 

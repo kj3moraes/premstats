@@ -18,7 +18,9 @@ def create_season(season: Season, session: Session = Depends(get_session)):
 
 
 @router.get("/list", response_model=List[Season])
-def read_seasons(skip: int = 0, limit: int = 100, session: Session = Depends(get_session)):
+def read_seasons(
+    skip: int = 0, limit: int = 100, session: Session = Depends(get_session)
+):
     seasons = session.exec(select(Season).offset(skip).limit(limit)).all()
     return seasons
 
@@ -32,7 +34,9 @@ def read_season(season_id: int, session: Session = Depends(get_session)):
 
 
 @router.put("/update/{season_id}", response_model=Season)
-def update_season(season_id: int, season: Season, session: Session = Depends(get_session)):
+def update_season(
+    season_id: int, season: Season, session: Session = Depends(get_session)
+):
     db_season = session.get(Season, season_id)
     if not db_season:
         raise HTTPException(status_code=404, detail="Season not found")

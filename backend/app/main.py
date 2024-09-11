@@ -1,12 +1,11 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware 
+from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.main import api_router
 from app.pre_start import main
 
 app = FastAPI(
-    title="premstats",
-    description="Service to query any English Premier League stat."
+    title="premstats", description="Service to query any English Premier League stat."
 )
 
 # Set all CORS enabled origins
@@ -23,10 +22,12 @@ if settings.BACKEND_CORS_ORIGINS:
 
 # === ENDPOINTS ===
 
+
 # Health Check
 @app.get("/check")
 async def healthcheck():
     return {"message": "Thus spoke St. Alia-of-the-Knife"}
+
 
 # API
 app.include_router(api_router, prefix="/api")

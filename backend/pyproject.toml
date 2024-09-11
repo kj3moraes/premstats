@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "premstats"
 version = "0.1.0"
-description = ""
+description = "A server for all Premier League stats"
 authors = ["Keane Moraes <lordvader3002@gmail.com>"]
 readme = "README.md"
 
@@ -23,7 +23,19 @@ tqdm = "^4.66.5"
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"
 isort = {extras = ["black"], version = "^5.13.2"}
+pytest = "^8.3.3"
+mypy = "^1.11.2"
+coverage = "^7.6.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+strict = true
+exclude = ["venv", ".venv", "alembic"]
+
+[tool.black]
+line-length = 90
+target-version = ['py38']
+exclude = "/venv|/.venv|/alembic"

@@ -8,6 +8,7 @@ class Season(SQLModel, table=True):
     """
     Represents an entire season
     """
+
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(index=True, unique=True, description="Season years")
 
@@ -18,17 +19,18 @@ class Team(SQLModel, table=True):
     """
     Represents a football team.
     """
+
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(index=True, unique=True, description="Name of the football team")
-    
+
     # Relationships
     home_matches: List["Match"] = Relationship(
         back_populates="home_team",
-        sa_relationship_kwargs={"foreign_keys": "Match.home_team_name"}
+        sa_relationship_kwargs={"foreign_keys": "Match.home_team_name"},
     )
     away_matches: List["Match"] = Relationship(
         back_populates="away_team",
-        sa_relationship_kwargs={"foreign_keys": "Match.away_team_name"}
+        sa_relationship_kwargs={"foreign_keys": "Match.away_team_name"},
     )
 
 
@@ -57,13 +59,23 @@ class Match(SQLModel, table=True):
     division: str = Field(description="League Division")
     match_date: date = Field(description="Match Date (YYYY-MM-DD)")
     match_time: Optional[time] = Field(description="Match Kick-off Time (HH:MM)")
-    
+
     # Team Relationships
-    home_team_name: str = Field(foreign_key="team.name", description="Name of the Home Team")
-    away_team_name: str = Field(foreign_key="team.name", description="Name of the Away Team")
-    home_team: "Team" = Relationship(back_populates="home_matches", sa_relationship_kwargs={"foreign_keys": "Match.home_team_name"})
-    away_team: "Team" = Relationship(back_populates="away_matches", sa_relationship_kwargs={"foreign_keys": "Match.away_team_name"})
-    
+    home_team_name: str = Field(
+        foreign_key="team.name", description="Name of the Home Team"
+    )
+    away_team_name: str = Field(
+        foreign_key="team.name", description="Name of the Away Team"
+    )
+    home_team: "Team" = Relationship(
+        back_populates="home_matches",
+        sa_relationship_kwargs={"foreign_keys": "Match.home_team_name"},
+    )
+    away_team: "Team" = Relationship(
+        back_populates="away_matches",
+        sa_relationship_kwargs={"foreign_keys": "Match.away_team_name"},
+    )
+
     # Referee Relationship
     referee_name: Optional[str] = Field(
         default=None, foreign_key="referee.name", description="ID of the Referee"
@@ -107,12 +119,8 @@ class Match(SQLModel, table=True):
     away_yellow_cards: Optional[int] = Field(
         default=None, description="Away Team Yellow Cards"
     )
-    home_red_cards: Optional[int] = Field(
-        default=None, description="Home Team Red Cards"
-    )
-    away_red_cards: Optional[int] = Field(
-        default=None, description="Away Team Red Cards"
-    )
+    home_red_cards: Optional[int] = Field(default=None, description="Home Team Red Cards")
+    away_red_cards: Optional[int] = Field(default=None, description="Away Team Red Cards")
 
     # Betting Odds - 1X2 (Match Result)
     bet365_home_win_odds: Optional[float] = Field(

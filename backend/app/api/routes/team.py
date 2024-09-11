@@ -7,6 +7,7 @@ from app.models import Team
 
 router = APIRouter()
 
+
 @router.post("/add", response_model=Team, status_code=status.HTTP_201_CREATED)
 def create_team(team: Team, session: Session = Depends(get_session)):
     session.add(team)
