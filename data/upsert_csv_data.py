@@ -4,7 +4,7 @@
 import csv
 import os
 import re
-import sys
+import time
 import zipfile
 from argparse import ArgumentParser
 from datetime import datetime
