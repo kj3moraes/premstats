@@ -1,8 +1,8 @@
+from app.api.main import api_router
+from app.core.config import settings
+from app.pre_start import main
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.config import settings
-from app.api.main import api_router
-from app.pre_start import main
 
 app = FastAPI(
     title="premstats", description="Service to query any English Premier League stat."

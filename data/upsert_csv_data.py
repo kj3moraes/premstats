@@ -2,12 +2,12 @@
 """
 
 import csv
+import os
 import re
 import sys
 import zipfile
 from argparse import ArgumentParser
 from datetime import datetime
-import os
 from pathlib import Path
 from typing import Any, Dict
 
@@ -15,26 +15,32 @@ import requests
 from tqdm import tqdm
 
 parser = ArgumentParser()
-parser.add_argument("zip_path", help="The path to the zip file to extract the CSVs from")
+parser.add_argument(
+    "zip_path", help="The path to the zip file to extract the CSVs from"
+)
 parser.add_argument("base_url", help="The URL for the server")
-parser.add_argument("--no-extract", action="store_true", help="Flag to not extract the zipfile and use the stats/ directory instead.")
+parser.add_argument(
+    "--no-extract",
+    action="store_true",
+    help="Flag to not extract the zipfile and use the stats/ directory instead.",
+)
 
 # Default to localhost
 BASE_URL = "http://localhost:8000"
 
 
 def parse_date(date_str: str) -> str:
-    """ Parses the date from the CSV file and outputs it in the YYYY-MM-DD
+    """Parses the date from the CSV file and outputs it in the YYYY-MM-DD
         format.
 
     Args:
-        date_str (str): the date string from the CSV column 
+        date_str (str): the date string from the CSV column
 
     Raises:
-        Exception: if the date cannot be parsed. 
+        Exception: if the date cannot be parsed.
 
     Returns:
-        str: date in the format YYYY-MM-DD 
+        str: date in the format YYYY-MM-DD
     """
 
     try:
@@ -51,39 +57,54 @@ def parse_float(value: str) -> float:
     return float(value) if value else None
 
 
-def get_or_create(model: str, **kwargs):
-    """Gets the specific model instance from the database if it exists. Else creates
-        it in the database.
+def get_or_create(model: str, **kwargs) -> Dict[str, Any]:
+    """
+    Updates the specific model instance from the database if it exists. Else creates
+    it in the database with retry logic to handle race conditions.
 
     Args:
         model (str): model type. Either 'season', 'team', 'referee'
-
     Raises:
         Exception: Throws exception when model type is not valid or
                    the database encounters some exception.
-
-    Returns: The info to populate in the match model.
+    Returns:
+        Dict[str, Any]: The info to populate in the match model.
     """
+    max_retries = 3
+    retry_delay = 0.5  # seconds
 
-    response = requests.get(f"{BASE_URL}/api/{model}/list", params=kwargs)
-    if response.status_code == 200 and response.json():
-        name = kwargs["name"]
+    for attempt in range(max_retries):
+        try:
+            # First, try to get the existing instance
+            response = requests.get(f"{BASE_URL}/api/{model}/list")
+            if response.status_code == 200 and response.json():
+                name: str = kwargs["name"]
+                instances = response.json()
 
-        # WARNING: This would fail if the anything other than a list is provided
-        instances = response.json()
-        for instance in instances:
-            # Check if the request model name already exists in the database.
-            # If it does, then return the model instance
-            if name == instance["name"]:
-                return instance
+                for instance in instances:
+                    if name == instance["name"]:
+                        return instance
 
-    # We can assume here that the model instance does not exist within
-    # the database. So we have to create it.
-    response = requests.post(f"{BASE_URL}/api/{model}/add", json=kwargs)
-    if response.status_code == 201:
-        return response.json()
-    else:
-        raise Exception(f"Failed to create {model}: {response.text}")
+            # If not found, try to create it
+            response = requests.post(f"{BASE_URL}/api/{model}/add", json=kwargs)
+            if response.status_code == 201:
+                return response.json()
+            elif response.status_code == 409:  # Assuming 409 is returned for conflicts
+                # If there's a conflict, it means the instance was created by another process
+                # Retry getting the instance
+                continue
+            else:
+                raise Exception(f"Failed to create {model}: {response.text}")
+
+        except requests.exceptions.RequestException as e:
+            if attempt == max_retries - 1:
+                raise Exception(
+                    f"Failed to get or create {model} after {max_retries} attempts: {str(e)}"
+                )
+
+        time.sleep(retry_delay)
+
+    raise Exception(f"Failed to get or create {model} after {max_retries} attempts")
 
 
 def create_match(season_name, row: Dict[str, Any]):
@@ -91,7 +112,9 @@ def create_match(season_name, row: Dict[str, Any]):
     home_team = get_or_create("team", name=row["HomeTeam"])
     away_team = get_or_create("team", name=row["AwayTeam"])
     if "Referee" in row:
-        referee = get_or_create("referee", name=row["Referee"]) if row["Referee"] else None
+        referee = (
+            get_or_create("referee", name=row["Referee"]) if row["Referee"] else None
+        )
     else:
         referee = None
 
@@ -111,8 +134,12 @@ def create_match(season_name, row: Dict[str, Any]):
         "half_time_result": row["HTR"] if "HTR" in row else None,
         "home_shots": int(row["HS"]) if "HS" in row and row["HS"] else None,
         "away_shots": int(row["AS"]) if "AS" in row and row["AS"] else None,
-        "home_shots_on_target": int(row["HST"]) if "HST" in row and row["HST"] else None,
-        "away_shots_on_target": int(row["AST"]) if "AST" in row and row["AST"] else None,
+        "home_shots_on_target": (
+            int(row["HST"]) if "HST" in row and row["HST"] else None
+        ),
+        "away_shots_on_target": (
+            int(row["AST"]) if "AST" in row and row["AST"] else None
+        ),
         "home_fouls": int(row["HF"]) if "HF" in row and row["HF"] else None,
         "away_fouls": int(row["AF"]) if "AF" in row and row["AF"] else None,
         "home_corners": int(row["HC"]) if "HC" in row and row["HC"] else None,
@@ -145,23 +172,45 @@ def create_match(season_name, row: Dict[str, Any]):
         "avg_home_win_odds": parse_float(row["AvgH"]) if "AvgH" in row else None,
         "avg_draw_odds": parse_float(row["AvgD"]) if "AvgD" in row else None,
         "avg_away_win_odds": parse_float(row["AvgA"]) if "AvgA" in row else None,
-        "bet365_over_2_5_odds": parse_float(row["B365>2.5"]) if "B365>2.5" in row else None,
-        "bet365_under_2_5_odds": parse_float(row["B365<2.5"]) if "B365<2.5" in row else None,
+        "bet365_over_2_5_odds": (
+            parse_float(row["B365>2.5"]) if "B365>2.5" in row else None
+        ),
+        "bet365_under_2_5_odds": (
+            parse_float(row["B365<2.5"]) if "B365<2.5" in row else None
+        ),
         "pinnacle_over_2_5_odds": parse_float(row["P>2.5"]) if "P>2.5" in row else None,
-        "pinnacle_under_2_5_odds": parse_float(row["P<2.5"]) if "P<2.5" in row else None,
+        "pinnacle_under_2_5_odds": (
+            parse_float(row["P<2.5"]) if "P<2.5" in row else None
+        ),
         "max_over_2_5_odds": parse_float(row["Max>2.5"]) if "Max>2.5" in row else None,
         "max_under_2_5_odds": parse_float(row["Max<2.5"]) if "Max<2.5" in row else None,
         "avg_over_2_5_odds": parse_float(row["Avg>2.5"]) if "Avg>2.5" in row else None,
         "avg_under_2_5_odds": parse_float(row["Avg<2.5"]) if "Avg<2.5" in row else None,
         "asian_handicap_line": parse_float(row["AHh"]) if "AHh" in row else None,
-        "bet365_asian_handicap_home_odds": parse_float(row["B365AHH"]) if "B365AHH" in row else None,
-        "bet365_asian_handicap_away_odds": parse_float(row["B365AHA"]) if "B365AHA" in row else None,
-        "pinnacle_asian_handicap_home_odds": parse_float(row["PAHH"]) if "PAHH" in row else None,
-        "pinnacle_asian_handicap_away_odds": parse_float(row["PAHA"]) if "PAHA" in row else None,
-        "max_asian_handicap_home_odds": parse_float(row["MaxAHH"]) if "MaxAHH" in row else None,
-        "max_asian_handicap_away_odds": parse_float(row["MaxAHA"]) if "MaxAHA" in row else None,
-        "avg_asian_handicap_home_odds": parse_float(row["AvgAHH"]) if "AvgAHH" in row else None,
-        "avg_asian_handicap_away_odds": parse_float(row["AvgAHA"]) if "AvgAHA" in row else None,
+        "bet365_asian_handicap_home_odds": (
+            parse_float(row["B365AHH"]) if "B365AHH" in row else None
+        ),
+        "bet365_asian_handicap_away_odds": (
+            parse_float(row["B365AHA"]) if "B365AHA" in row else None
+        ),
+        "pinnacle_asian_handicap_home_odds": (
+            parse_float(row["PAHH"]) if "PAHH" in row else None
+        ),
+        "pinnacle_asian_handicap_away_odds": (
+            parse_float(row["PAHA"]) if "PAHA" in row else None
+        ),
+        "max_asian_handicap_home_odds": (
+            parse_float(row["MaxAHH"]) if "MaxAHH" in row else None
+        ),
+        "max_asian_handicap_away_odds": (
+            parse_float(row["MaxAHA"]) if "MaxAHA" in row else None
+        ),
+        "avg_asian_handicap_home_odds": (
+            parse_float(row["AvgAHH"]) if "AvgAHH" in row else None
+        ),
+        "avg_asian_handicap_away_odds": (
+            parse_float(row["AvgAHA"]) if "AvgAHA" in row else None
+        ),
     }
 
     response = requests.post(f"{BASE_URL}/api/match/add", json=match_data)
@@ -237,7 +286,10 @@ if __name__ == "__main__":
     csv_files = [
         (stats_folder_path / f)
         for f in os.listdir(stats_folder_path)
-        if ((stats_folder_path / f).is_file() and (stats_folder_path / f).suffix == ".csv")
+        if (
+            (stats_folder_path / f).is_file()
+            and (stats_folder_path / f).suffix == ".csv"
+        )
     ]
     for csv_file in csv_files:
         parse_csv(csv_file)
