@@ -1,23 +1,37 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
 from app.core.db import get_session
 from app.models import Team
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
+from sqlmodel import Session, select
 
 router = APIRouter()
 
-@router.post("/add", response_model=Team)
-def create_team(team: Team, session: Session = Depends(get_session)):
-    session.add(team)
-    session.commit()
-    session.refresh(team)
-    return team
+
+@router.post("/add", response_model=Team, status_code=status.HTTP_201_CREATED)
+def create_season(team: Team, session: Session = Depends(get_session)):
+    try:
+        session.add(team)
+        session.commit()
+        session.refresh(team)
+        return team
+    except IntegrityError as e:
+        session.rollback()
+        error_info = str(e.orig)
+        if "ix_team_name" in error_info:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Team with name '{team.name}' already exists.",
+            )
+        else:
+            # If it's not a name conflict, re-raise the original exception
+            raise e
 
 
 @router.get("/list", response_model=List[Team])
-def read_teams(skip: int = 0, limit: int = 100, session: Session = Depends(get_session)):
-    teams = session.exec(select(Team).offset(skip).limit(limit)).all()
+def read_teams(session: Session = Depends(get_session)):
+    teams = session.exec(select(Team)).all()
     return teams
 
 
@@ -43,11 +57,10 @@ def update_team(team_id: int, team: Team, session: Session = Depends(get_session
     return db_team
 
 
-@router.delete("/delete/{team_id}")
+@router.delete("/delete/{team_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_team(team_id: int, session: Session = Depends(get_session)):
     team = session.get(Team, team_id)
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")
     session.delete(team)
     session.commit()
-    return {"ok": True}
