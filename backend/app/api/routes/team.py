@@ -48,7 +48,11 @@ def read_team(team_id: int, session: Session = Depends(get_session)):
 
 
 @router.put("/update/{team_id}", response_model=Team)
-def update_team(team_id: int, team: Team, session: Session = Depends(get_session)):
+def update_team(
+    team_id: int,
+    team: Annotated[Team, AfterValidator(Team.model_validate)],
+    session: Session = Depends(get_session),
+):
     db_team = session.get(Team, team_id)
     if not db_team:
         raise HTTPException(status_code=404, detail="Team not found")
