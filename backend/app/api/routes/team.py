@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.post("/add", response_model=Team, status_code=status.HTTP_201_CREATED)
-def create_season(
+def create_team(
     team: Annotated[Team, AfterValidator(Team.model_validate)],
     session: Session = Depends(get_session),
 ):

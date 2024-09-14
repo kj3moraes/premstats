@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-from sqlmodel import Session
 
 
 def test_team_create(client: TestClient) -> None:
@@ -41,7 +40,7 @@ def test_team_read_item_not_found(client: TestClient) -> None:
     assert content["detail"] == "Team not found"
 
 
-def test_uniqueness_name(client: TestClient) -> None:
+def test_team_uniqueness_name(client: TestClient) -> None:
     data = {"name": "The Fremen"}
     response = client.post(
         "/api/team/add",
