@@ -1,4 +1,4 @@
-# premstats
+# premstats ⚽️
 
 A natural language querying system for Premier League stats. This project is comprised of 2 parts:
 
@@ -6,6 +6,12 @@ A natural language querying system for Premier League stats. This project is com
 2. A frontend that parses a natural language query and returns the relevant sports statistics
 
 Part 1 is within the `backend/` directory. This also serves Part 2. Part 2 is defined in the `frontend/` directory. 
+
+## Usage
+
+To use 2., you can go to this website for querying - 
+
+To use 1., you can refer to the documentation for the API here - 
 
 ## Setup
 
