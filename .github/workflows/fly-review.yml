@@ -36,4 +36,4 @@ jobs:
         with:
           path: backend
           config: fly.staging.toml
-          secrets: ENVIRONMENT=staging POSTGRES_SERVER={{ secrets.STAGING_PG_SERVER }} POSTGRES_PORT=5432 POSTGRES_USER={{ secrets.STAGING_PG_USER }} POSTGRES_PASSWORD={{ secrets.STAGING_PG_PASSWORD }}
+          secrets: PROJECT_NAME=premstats ENVIRONMENT=staging POSTGRES_SERVER=${{ secrets.STAGING_PG_SERVER }} POSTGRES_PORT=5432 POSTGRES_DB=${{ secrets.STAGING_PG_DB }} POSTGRES_USER=${{ secrets.STAGING_PG_USER }} POSTGRES_PASSWORD=${{ secrets.STAGING_PG_PASSWORD }}
