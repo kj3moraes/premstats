@@ -1,16 +1,20 @@
-from typing import List
+from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from sqlmodel import Session, select
 from app.core.db import get_session
 from app.models import Match
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import AfterValidator
+from sqlmodel import Session, select
 
 router = APIRouter()
 
 
 # Match CRUD operations
 @router.post("/add", response_model=Match, status_code=status.HTTP_201_CREATED)
-def create_match(match: Match, session: Session = Depends(get_session)):
+def create_match(
+    match: Annotated[Match, AfterValidator(Match.model_validate)],
+    session: Session = Depends(get_session),
+):
     session.add(match)
     session.commit()
     session.refresh(match)
@@ -34,7 +38,11 @@ def read_match(match_id: int, session: Session = Depends(get_session)):
 
 
 @router.put("/update/{match_id}", response_model=Match)
-def update_match(match_id: int, match: Match, session: Session = Depends(get_session)):
+def update_match(
+    match_id: int,
+    match: Annotated[Match, AfterValidator(Match.model_validate)],
+    session: Session = Depends(get_session),
+):
     db_match = session.get(Match, match_id)
     if not db_match:
         raise HTTPException(status_code=404, detail="Match not found")
