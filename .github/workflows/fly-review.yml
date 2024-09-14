@@ -28,7 +28,14 @@ jobs:
 
     steps:
       - name: Get code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
+        with:
+            sparse-checkout: |
+              .github
+              backend
+              data
+              scripts
+              README.md
 
       - name: Deploy PR app to Fly.io
         id: deploy
