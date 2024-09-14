@@ -34,6 +34,7 @@ jobs:
         id: deploy
         uses: superfly/fly-pr-review-apps@1.2.0
         with:
+          name: premstats-dev
           path: backend
           config: fly.staging.toml
           secrets: PROJECT_NAME=premstats ENVIRONMENT=staging POSTGRES_SERVER=${{ secrets.STAGING_PG_SERVER }} POSTGRES_PORT=5432 POSTGRES_DB=${{ secrets.STAGING_PG_DB }} POSTGRES_USER=${{ secrets.STAGING_PG_USER }} POSTGRES_PASSWORD=${{ secrets.STAGING_PG_PASSWORD }}
