@@ -49,7 +49,9 @@ def read_season(season_id: int, session: Session = Depends(get_session)):
 
 @router.put("/update/{season_id}", response_model=Season)
 def update_season(
-    season_id: int, season: Season, session: Session = Depends(get_session)
+    season_id: int,
+    season: Annotated[Season, AfterValidator(Season.model_validate)],
+    session: Session = Depends(get_session),
 ):
     db_season = session.get(Season, season_id)
     if not db_season:

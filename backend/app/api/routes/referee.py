@@ -51,7 +51,9 @@ def read_referee(referee_id: int, session: Session = Depends(get_session)):
 
 @router.put("/update/{referee_id}", response_model=Referee)
 def update_referee(
-    referee_id: int, referee: Referee, session: Session = Depends(get_session)
+    referee_id: int,
+    referee: Annotated[Referee, AfterValidator(Referee.model_validate)],
+    session: Session = Depends(get_session),
 ):
     db_referee = session.get(Referee, referee_id)
     if not db_referee:
