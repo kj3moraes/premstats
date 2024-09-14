@@ -32,7 +32,7 @@ jobs:
 
       - name: Deploy PR app to Fly.io
         id: deploy
-        uses: kj3moraes/fly-pr-review-apps@0.3.2
+        uses: ./.github/actions/action-fly-pr-review
         with:
           path: backend
           config: fly.staging.toml
