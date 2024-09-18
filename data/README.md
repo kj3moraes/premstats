@@ -9,3 +9,8 @@ The raw data (all the individual CSV files) is found in the prem_stats_data.zip 
 ## Database Tables and Columns
 
 To understand the database's tables and columns and the different statistics used, refer to the DETAILED_STATS.md file in this directory.
+
+
+## Script and Usage
+
+x

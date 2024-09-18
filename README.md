@@ -30,9 +30,6 @@ To run this system, you only need to have Docker installed. The technology stack
   - Using TypeScript, TailwindCSS and Vite
   - Chakra UI for the frontend components.
 
-
-To develop the system further, I recommend reading through the [backend README](/backend/README.md) and [frontend README]() to understand how to setup your developer environment for these tasks.
-
 ## Running
 
 To run this system locally, you only need to make a .env file. The docker compose file handles the rest.
