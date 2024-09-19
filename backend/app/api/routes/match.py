@@ -10,9 +10,13 @@ router = APIRouter()
 
 
 # Match CRUD operations
-@router.post("/add", response_model=Match, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/add",
+    response_model=Match,
+    status_code=status.HTTP_201_CREATED,
+)
 def create_match(
-    match: Annotated[Match, AfterValidator(Match.model_validate)],
+    match: Match,
     session: Session = Depends(get_session),
 ):
     session.add(match)
@@ -47,8 +51,7 @@ def update_match(
     if not db_match:
         raise HTTPException(status_code=404, detail="Match not found")
     match_data = match.model_dump(exclude_unset=True)
-    for key, value in match_data.items():
-        setattr(db_match, key, value)
+    db_match.sqlmodel_update(match_data)
     session.add(db_match)
     session.commit()
     session.refresh(db_match)
