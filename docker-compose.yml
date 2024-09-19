@@ -54,12 +54,14 @@ services:
         INSTALL_DEV: ${INSTALL_DEV-false}
     platform: linux/amd64 # Patch for Arm Macs
   
-  frontend:
-    image: '${DOCKER_IMAGE_FRONTEND?Variable not set}:latest'
-    restart: always
-    ports:
-      - 3000:3000
-    build:
-      context: ./premstats-frontend 
+  # frontend:
+  #   image: '${DOCKER_IMAGE_FRONTEND?Variable not set}:latest'
+  #   restart: always
+  #   ports:
+  #     - 3000:3000
+  #   environment:
+  #     - BACKEND_API_URL=${BACKEND_API_URL?Variable not set}
+  #   build:
+  #     context: ./premstats-frontend 
 volumes:
   app-db-data:
