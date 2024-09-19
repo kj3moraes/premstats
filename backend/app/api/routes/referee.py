@@ -1,8 +1,9 @@
-from typing import List
+from typing import Annotated, List
 
 from app.core.db import get_session
 from app.models import Referee
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import AfterValidator
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
@@ -11,7 +12,11 @@ router = APIRouter()
 
 # Referee CRUD operations
 @router.post("/add", response_model=Referee, status_code=status.HTTP_201_CREATED)
-def create_referee(referee: Referee, session: Session = Depends(get_session)):
+def create_referee(
+    referee: Annotated[Referee, AfterValidator(Referee.model_validate)],
+    session: Session = Depends(get_session),
+):
+    referee = Referee.model_validate(referee)
     try:
         session.add(referee)
         session.commit()
@@ -46,7 +51,9 @@ def read_referee(referee_id: int, session: Session = Depends(get_session)):
 
 @router.put("/update/{referee_id}", response_model=Referee)
 def update_referee(
-    referee_id: int, referee: Referee, session: Session = Depends(get_session)
+    referee_id: int,
+    referee: Annotated[Referee, AfterValidator(Referee.model_validate)],
+    session: Session = Depends(get_session),
 ):
     db_referee = session.get(Referee, referee_id)
     if not db_referee:

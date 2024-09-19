@@ -1,8 +1,9 @@
-from typing import List
+from typing import Annotated, List
 
 from app.core.db import get_session
 from app.models import Season
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import AfterValidator
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
@@ -10,7 +11,10 @@ router = APIRouter()
 
 
 @router.post("/add", response_model=Season, status_code=status.HTTP_201_CREATED)
-def create_season(season: Season, session: Session = Depends(get_session)):
+def create_season(
+    season: Annotated[Season, AfterValidator(Season.model_validate)],
+    session: Session = Depends(get_session),
+):
     try:
         session.add(season)
         session.commit()
@@ -45,7 +49,9 @@ def read_season(season_id: int, session: Session = Depends(get_session)):
 
 @router.put("/update/{season_id}", response_model=Season)
 def update_season(
-    season_id: int, season: Season, session: Session = Depends(get_session)
+    season_id: int,
+    season: Annotated[Season, AfterValidator(Season.model_validate)],
+    session: Session = Depends(get_session),
 ):
     db_season = session.get(Season, season_id)
     if not db_season:
