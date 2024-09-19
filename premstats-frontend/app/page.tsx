@@ -7,7 +7,7 @@ import { FaFutbol } from "react-icons/fa";
 import { query_backend } from '../api/query';
 
 export default function Home() {
-  const [responses, setResponses] = useState<string[]>([]);
+  const [response, setResponses] = useState<string>("");
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -17,10 +17,10 @@ export default function Home() {
     setIsLoading(true);
     try {
       const response = await query_backend(query);
-      setResponses([...responses, response]);
+      setResponses(response);
     } catch (error) {
       console.error('Error querying backend:', error);
-      setResponses([...responses, "An error occurred while fetching the response."]);
+      setResponses( "An error occurred while fetching the response.");
     } finally {
       setIsLoading(false);
       setQuery('');
@@ -72,9 +72,7 @@ export default function Home() {
             </VStack>
             {/* Right side */}
             <VStack align="stretch" width="50%" spacing={4} p={4} borderRadius="md" height="100%" overflowY="auto">
-              {responses.map((response, index) => (
-                <Text key={index} color="gray.800">{response}</Text>
-              ))}
+              <Text color="gray.800">{response}</Text>
               {isLoading && <Text color="gray.500">Loading...</Text>}
             </VStack>
           </HStack>
