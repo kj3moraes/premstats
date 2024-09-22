@@ -101,25 +101,137 @@ REFEREE_NAME_CLEANING = {
     "L Smith": "Lee Smith",
     "S Singh": "Sunny Singh",
     "M Donohue": "Matt Donohue",
+    "N. S. Barry": "Neale Barry",
+    "P. A. Durkin": "Paul Durkin",
+    "C. R. Wilkes": "Clive Wilkes",
+    "R. Styles": "Rob Styles",
+    "J. T. Winter": "Jeff Winter",
+    "G. P. Barber": "Graham Barber",
+    "G. Poll": "Graham Poll",
+    "D. J. Gallagher": "Dermot Gallagher",
+    "A. P. D'Urso": "Andy D'Urso",
+    "P. Jones": "Phil Jones",
+    "D. R. Elleray": "David Elleray",
+    "S. W. Dunn": "Steve Dunn",
+    "E. K. Wolstenholme": "Eddie Wolstenholme",
+    "A. G. Wiley": "Alan Wiley",
+    "B. Knight": "Barry Knight",
+    "S. G. Bennett": "Steve Bennett",
+    "U. D. Rennie": "Uriah Rennie",
+    "M. L Dean": "Mike Dean",
+    "D. Pugh": "David Pugh",
+    "M. A. Riley": "Mike Riley",
+    "M. R. Halsey": "Mark Halsey",
+    "M. D. Messias": "Mark Messias",
+    "C. J. Foy": "Chris Foy",
+    "P. Dowd": "Phil Dowd",
+    "Yates, N": "Neale Barry",  # If Yates is a variant of N. S. Barry
+    "Wiley, A. G.": "Alan Wiley",
+    "Elleray, D. R.": "David Elleray",
+    "Winter, J. T.": "Jeff Winter",
+    "Wolstenholme, E. K.": "Eddie Wolstenholme",
+    "Dunn, S. W.": "Steve Dunn",
+    "Knight, B.": "Barry Knight",
+    "Rennie, U. D.": "Uriah Rennie",
+    "Dean, M. L": "Mike Dean",
+    "Poll, G.": "Graham Poll",
+    "Halsey, M. R.": "Mark Halsey",
+    "Dowd, P.": "Phil Dowd",
+    "Jones, P.": "Phil Jones",
+    "Styles, R.": "Rob Styles",
+    "Gallagher, D. J.": "Dermot Gallagher",
+    "D'Urso, A. P.": "Andy D'Urso",
+    "Durkin, P. A.": "Paul Durkin",
+    "Barber, G. P.": "Graham Barber",
+    "Wilkes, C. R.": "Clive Wilkes",
+    "Foy, C. J.": "Chris Foy",
+    "Messias, M. D.": "Mark Messias",
+    "D Gallagh": "Dermot Gallagher",
+    "D Gallaghe": "Dermot Gallagher",
+    "R Martin": "Ross Martin",
+    "T Bramall": "Thomas Bramall",
+    "D Bond": "Darren Bond",
+    "J Smith": "Joshua Smith",
+    "N. S. Barry": "Neil Barry",
+    "P. A. Durkin": "Paul Durkin",
+    "C. R. Wilkes": "Clive Wilkes",
+    "R. Styles": "Rob Styles",
+    "J. T. Winter": "Jeff Winter",
+    "G. P. Barber": "Graham Barber",
+    "G. Poll": "Graham Poll",
+    "D. J. Gallagher": "Dermot Gallagher",
+    "A. P. D'Urso": "Andy D'Urso",
+    "A.G. Wiley": "Alan Wiley",
+    "P. Jones": "Phil Jones",
+    "D. R. Elleray": "David Elleray",
+    "S. W. Dunn": "Steve Dunn",
+    "E. K. Wolstenholme": "Eddie Wolstenholme",
+    "A. G. Wiley": "Alan Wiley",
+    "B. Knight": "Barry Knight",
+    "S. G. Bennett": "Steve Bennett",
+    "U. D. Rennie": "Uriah Rennie",
+    "M. L Dean": "Mike Dean",
+    "M. L. Dean": "Mike Dean",
+    "M. A. Riley": "Mike Riley",
+    "M. R. Halsey": "Mark Halsey",
+    "M. D. Messias": "Mark Messias",
+    "P. Dowd": "Phil Dowd",
+    "C. J. Foy": "Chris Foy",
+    "D. Pugh": "David Pugh",
+    "Yates, N": "Neale Barry",
+    "A Moss": "Anthony Moss",
+    "Wiley, A. G.": "Alan Wiley",
+    "Elleray, D. R.": "David Elleray",
+    "Winter, J. T.": "Jeff Winter",
+    "J.T. Winter": "Jeff Winter",
+    "Wolstenholme, E. K.": "Eddie Wolstenholme",
+    "Dunn, S. W.": "Steve Dunn",
+    "Knight, B.": "Barry Knight",
+    "Riley, M. A.": "Mike Riley",
+    "Rennie, U. D.": "Uriah Rennie",
+    "Durkin, P. A.": "Paul Durkin",
+    "P.A. Durkin": "Paul Durkin",
+    "l Mason": "Lee Mason",
+    "Styles, R": "Rob Styles",
+    "Barber, G. P.": "Graham Barber",
+    "D'Urso, A. P.": "Andy D'Urso",
+    "Wilkes, C. R.": "Clive Wilkes",
+    "Bennett, S. G.": "Steve Bennett",
+    "Barry, N. S.": "Neil Barry",
+    "Halsey, M. R.": "Mark Halsey",
+    "Jones, P.": "Phil Jones",
+    "Poll, G.": "Graham Poll",
+    "Pugh, D.": "David Pugh",
+    "Styles, R.": "Rob Styles",
+    "Gallagher, D. J.": "Dermot Gallagher",
+    "Dean, M. L.": "Mike Dean",
+    "Messias, M. D.": "Mark Messias",
+    "Foy, C. J.": "Chris Foy",
+    "Durkin, P.": "Paul Durkin",
 }
 
 
 def clean_csv(csv_file_path: Path) -> str:
     cleaned_rows = []
-
+    csv_file_name = csv_file_path.name
     with open(csv_file_path, "r", encoding="utf-8") as csvfile:
         csv_reader = csv.DictReader(csvfile)
         fieldnames = csv_reader.fieldnames
-        if "Referee" not in fieldnames:
-            print(f"Skipping {csv_file_path}, no 'Referee' column found.")
-            return  # Skip if no 'Referee' column
 
         # Process each row, replace referee names
         for row in tqdm(csv_reader, desc=f"Cleaning {csv_file_path.name}"):
-            referee_name = row["Referee"].strip()
+
+            # Not all CSVs have a referee column, so we need to check if it exists
+            referee_name = row.get("Referee")
+            if referee_name is not None:
+                referee_name = referee_name.strip()
+
             home_team_name = row["HomeTeam"].strip()
             away_team_name = row["AwayTeam"].strip()
-            if referee_name in REFEREE_NAME_CLEANING:
+            if csv_file_name == "prem_01_02_stats.csv":
+                print(referee_name, home_team_name, away_team_name)
+
+            if referee_name is not None and referee_name in REFEREE_NAME_CLEANING:
                 row["Referee"] = REFEREE_NAME_CLEANING[referee_name]
             if home_team_name in TEAM_NAME_CLEANING:
                 row["HomeTeam"] = TEAM_NAME_CLEANING[home_team_name]
