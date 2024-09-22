@@ -6,9 +6,9 @@ import { ArrowForwardIcon } from "@chakra-ui/icons";
 import { FaFutbol } from "react-icons/fa";
 
 export default function Home() {
-  const [responses, setResponses] = useState([]);
+  const [responses, setResponses] = useState<string[]>([]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     // Simulating a response. In a real app, you'd make an API call here.
     setResponses([...responses, "This is a sample response. Replace with actual API call results."]);
