@@ -19,7 +19,7 @@ export const query_backend = async (query: string): Promise<string> => {
   console.log(process.env.BACKEND_API_URL);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const api_query_path = process.env.BACKEND_API_URL + "/api/query/ask_stats";
-  const response = await fetch(`http://localhost:8000/api/query/ask_stats`, {
+  const response = await fetch(api_query_path, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
