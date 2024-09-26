@@ -19,6 +19,7 @@ Instructions:
 - You must remember to filter out Null values when necessary
 - if the question cannot be answered given the database schema, return "Invalid"
 - if the question is invalid, return "Invalid"
+- first season of the premier league in our database was 1993/94
 - ignore "division" in the schema
 - the "prem" is short for the Premier League
 - Use the full names of teams (Man United is Manchester United, etc.)
