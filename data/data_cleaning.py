@@ -2,6 +2,7 @@ import csv
 import os
 import zipfile
 from argparse import ArgumentParser
+from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Dict
@@ -211,7 +212,31 @@ REFEREE_NAME_CLEANING = {
 }
 
 
-def clean_csv(csv_file_path: Path) -> str:
+def clean_date(date_str: str) -> str:
+    """Parses the date from the CSV file and outputs it in the YYYY-MM-DD
+        format.
+
+    Args:
+        date_str (str): the date string from the CSV column
+
+    Raises:
+        Exception: if the date cannot be parsed.
+
+    Returns:
+        str: date in the format YYYY-MM-DD
+    """
+
+    try:
+        date_obj = datetime.strptime(date_str, "%d/%m/%Y").strftime("%Y-%m-%d")
+    except ValueError as e:
+        date_obj = datetime.strptime(date_str, "%d/%m/%y").strftime("%Y-%m-%d")
+    except Exception as e:
+        raise Exception("Failed to parse the date ", date_str)
+    finally:
+        return date_obj
+
+
+def clean_csv(csv_file_path: Path):
     cleaned_rows = []
     csv_file_name = csv_file_path.name
     with open(csv_file_path, "r", encoding="utf-8") as csvfile:
@@ -228,15 +253,18 @@ def clean_csv(csv_file_path: Path) -> str:
 
             home_team_name = row["HomeTeam"].strip()
             away_team_name = row["AwayTeam"].strip()
-            if csv_file_name == "prem_01_02_stats.csv":
-                print(referee_name, home_team_name, away_team_name)
 
+            # Clean the referee and team names
             if referee_name is not None and referee_name in REFEREE_NAME_CLEANING:
                 row["Referee"] = REFEREE_NAME_CLEANING[referee_name]
             if home_team_name in TEAM_NAME_CLEANING:
                 row["HomeTeam"] = TEAM_NAME_CLEANING[home_team_name]
             if away_team_name in TEAM_NAME_CLEANING:
                 row["AwayTeam"] = TEAM_NAME_CLEANING[away_team_name]
+
+            # Standardize the date format
+            row["Date"] = clean_date(row["Date"])
+
             cleaned_rows.append(row)
 
     # Write the cleaned data back to the file
