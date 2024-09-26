@@ -21,8 +21,8 @@ jobs:
 
       - run: docker compose build
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           ENVIRONMENT: staging
+          DOCKER_IMAGE_BACKEND: backend 
           BACKEND_CORS_ORIGIN: ${{ secrets.BACKEND_CORS_ORIGIN }}
           PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
           POSTGRES_SERVER: ${{ secrets.PROD_PG_SERVER }}
