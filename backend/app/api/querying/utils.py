@@ -1,23 +1,33 @@
 from datetime import datetime
+from typing import List
 
 import requests
 from app.core.config import settings
+from fastapi import HTTPException
 from groq import Groq
 from pydantic import BaseModel
+from sqlalchemy import Row
 
 # The following prompt has 2 variables:
 # - user_question: str
 # - current_date: str
-PROMPT = """
-You are a Natural language to SQL bot. You must only output SQL code to answer the user's question.
+SQL_BOT_SYSTEM_PROMPT = """
+You are a Natural language to SQL bot for a database of Premier League Matches.
+You must only output SQL to answer the user's question.
 
-Generate a SQL query to answer this question: `{user_question}`
-- if the question cannot be answered given the database schema, return "I do not know"
+Instructions:
+- You must remember to filter out Null values when necessary
+- if the question cannot be answered given the database schema, return "Invalid"
+- if the question is invalid, return "Invalid"
+- ignore "division" in the schema
+- the "prem" is short for the Premier League
+- Use the full names of teams (Man United is Manchester United, etc.)
 - recall that the current date in YYYY-MM-DD format is {current_date} 
+- when asked for a season, you must query season_name with "English Premier League YYYY/YY Season" format
 - full_time_result is either "H" (home win), "A" (away win), or "D" (draw)
 - half_time_result is either "H" (home win), "A" (away win), or "D" (draw)
 
-The schema for the table is as follows:
+The schema is: 
 CREATE TABLE public.referee (
 	id serial4 NOT NULL,
 	"name" varchar NOT NULL,
@@ -102,8 +112,20 @@ CREATE TABLE public."match" (
 	CONSTRAINT match_season_name_fkey FOREIGN KEY (season_name) REFERENCES public.season("name")
 );
 
-Only answer with the best SQL query to answer the question `{user_question}`:
-```SQL
+```sql
+"""
+
+
+ANSWER_BOT_SYSTEM_PROMPT = """
+You are a question answer bot. The user will provide some dictionaries with match data and their original question. 
+You task is to frame an answer that is relevant to the question and the data provided.
+"""
+
+ANSWER_BOT_USER_PROMPT = """
+This is the original question {user_question}
+And this is the query result {match_data}.
+
+Frame an answer out of these.
 """
 
 
@@ -111,21 +133,61 @@ class StatsRequest(BaseModel):
     message: str
 
 
-def get_sql(query: str):
-    headers = {
-        "Accept": "application/json",
-        "Authorization": f"Bearer {settings.NL2SQL_API_KEY}",
-        "Content-Type": "application/json",
-    }
-    prompt = PROMPT.format(
-        user_question=query, current_date=datetime.now().strftime("%Y-%m-%d")
-    )
-    payload = {
-        "inputs": prompt,
-        "parameters": {},
-    }
+client = Groq(
+    api_key=settings.GROQ_API_KEY,
+)
 
-    response = requests.post(settings.NL2SQL_API_URL, headers=headers, json=payload)
-    response_text = response.json()[0]["generated_text"].strip()
-    sql = response_text.split("```SQL")[1]
+
+def get_sql(query: str):
+    chat_completions = client.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": SQL_BOT_SYSTEM_PROMPT.format(
+                    current_date=datetime.now().strftime("%Y-%m-%d")
+                ),
+            },
+            {"role": "user", "content": query},
+        ],
+        model="llama-3.1-70b-versatile",
+    )
+
+    sql = chat_completions.choices[0].message.content
+    sql = sql.replace("```sql", "")
+    sql = sql.replace("```", " ")
     return sql
+
+
+def get_answer(user_question: str, data):
+    prompt = ANSWER_BOT_USER_PROMPT.format(user_question=user_question, match_data=data)
+    try:
+        chat_completions = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": ANSWER_BOT_SYSTEM_PROMPT,
+                },
+                {"role": "user", "content": prompt},
+            ],
+            model="llama-3.1-70b-versatile",
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"There currently is a problem with the service. Please try again.",
+        )
+
+    response = chat_completions.choices[0].message.content
+    return response
+
+
+def convert_rows_to_essentials(results: List[Row]):
+    dicts = [row._asdict() for row in results]
+
+    # Remove None values and odds information
+    for d in dicts:
+        for k, v in list(d.items()):
+            if v is None or "odds" in k:
+                del d[k]
+    return dicts
