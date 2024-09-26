@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const Footer = () => {
   return (
@@ -6,7 +6,10 @@ const Footer = () => {
       <div className="container mx-auto">
         <div className="flex justify-end">
           <p className="text-sm text-muted-foreground">
-            made with ❤️ by{" "} <a href="https://itskeane.me" target="_blank" rel="noreferrer">Keane</a> 
+            made with ❤️ by{" "}
+            <a href="https://itskeane.me" target="_blank" rel="noreferrer">
+              Keane
+            </a>
           </p>
         </div>
       </div>

@@ -1,6 +1,5 @@
 "use client";
 import { Input } from "@/components/ui/input";
-import Footer from "@/components/footer";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import React, { useState } from "react";
@@ -59,10 +58,12 @@ export default function Home() {
           </form>
           <div>
             <Alert className="w-full max-w-md">
-              <AlertTitle className='text-lg font-semibold'>Heads up!</AlertTitle>
+              <AlertTitle className="text-lg font-semibold">
+                Heads up!
+              </AlertTitle>
               <AlertDescription>
-                This site is in beta mode and may not be fully functional. Please 
-                report any issues to the developer.
+                This site is in beta mode and may not be fully functional.
+                Please report any issues to the developer.
               </AlertDescription>
             </Alert>
           </div>
