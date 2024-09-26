@@ -14,6 +14,9 @@ jobs:
       - run: flyctl deploy --config ./backend/fly.production.toml --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          ENVIRONMENT: staging
+          BACKEND_CORS_ORIGIN: ${{ secrets.BACKEND_CORS_ORIGIN }}
+          PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
           POSTGRES_SERVER: ${{ secrets.PROD_PG_SERVER }}
           POSTGRES_PORT: 5432
           POSTGRES_DB: ${{ secrets.PROD_PG_DB }}
