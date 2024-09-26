@@ -71,8 +71,6 @@ class Settings(BaseSettings):
                 raise ValueError(message)
 
     # OpenAI API settings
-    NL2SQL_API_URL: HttpUrl
-    NL2SQL_API_KEY: str
     GROQ_API_KEY: str
 
     @model_validator(mode="after")

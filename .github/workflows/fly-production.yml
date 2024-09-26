@@ -22,3 +22,4 @@ jobs:
           POSTGRES_DB: ${{ secrets.PROD_PG_DB }}
           POSTGRES_USER: ${{ secrets.PROD_PG_USER }}
           POSTGRES_PASSWORD: ${{ secrets.PROD_PG_PASSWORD }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
