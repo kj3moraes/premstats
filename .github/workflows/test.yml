@@ -23,6 +23,16 @@ jobs:
           python-version: '3.10'
 
       - run: docker compose build
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          ENVIRONMENT: staging
+          BACKEND_CORS_ORIGIN: ${{ secrets.BACKEND_CORS_ORIGIN }}
+          PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
+          POSTGRES_SERVER: ${{ secrets.PROD_PG_SERVER }}
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: ${{ secrets.PROD_PG_DB }}
+          POSTGRES_USER: ${{ secrets.PROD_PG_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.PROD_PG_PASSWORD }}
       - run: docker compose down -v --remove-orphans
       - run: docker compose up -d
       - name: Lint
