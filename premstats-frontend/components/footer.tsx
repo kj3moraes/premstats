@@ -7,7 +7,7 @@ const Footer = () => {
         <div className="flex justify-end">
           <p className="text-sm text-muted-foreground">
             made with ❤️ by{" "}
-            <a href="https://itskeane.me" target="_blank" rel="noreferrer">
+            <a href="https://itskeane.info" target="_blank" rel="noreferrer">
               Keane
             </a>
           </p>

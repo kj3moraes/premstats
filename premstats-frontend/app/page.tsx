@@ -1,7 +1,6 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
 import React, { useState } from "react";
 import { FaFutbol } from "react-icons/fa";
 import { query_backend } from "../api/query";
@@ -10,11 +9,13 @@ export default function Home() {
   const [response, setResponse] = useState<string>("");
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
     setIsLoading(true);
+    setError(null);
     console.log("Querying backend with:", query);
     console.log(process.env.BACKEND_API_URL);
     try {
@@ -22,7 +23,8 @@ export default function Home() {
       setResponse(response);
     } catch (error) {
       console.error("Error querying backend:", error);
-      setResponse("An error occurred while fetching the response.");
+      setError(error instanceof Error ? error.message : "An unexpected error occurred");
+      setResponse("");
     } finally {
       setIsLoading(false);
       setQuery("");
@@ -48,9 +50,6 @@ export default function Home() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            {/* <Button type="submit" className="w-full">
-              Submit
-            </Button> */}
             <p className="text-sm text-muted-foreground mt-2 text-center md:text-left">
               You can ask about any Premier League season up to but not
               including the current season.
@@ -68,10 +67,15 @@ export default function Home() {
             </Alert>
           </div>
         </div>
-
         {/* Right side */}
         <div className="md:w-1/2 p-4 rounded-lg">
-          <p>{response}</p>
+          {error && (
+            <Alert variant="destructive">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          {response && <p>{response}</p>}
           {isLoading && <p>Loading...</p>}
         </div>
       </div>

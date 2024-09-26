@@ -28,7 +28,9 @@ export const query_backend = async (query: string): Promise<string> => {
   });
 
   const jsonResponse: BackendResponse = await response.json();
-  console.log(jsonResponse);
+  if (!response.ok) {
+    throw new Error(jsonResponse.message);
+  }
 
   return jsonResponse.message;
 };
