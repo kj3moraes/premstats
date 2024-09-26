@@ -19,5 +19,5 @@ def get_stats(request: StatsRequest):
     prompt = PROMPT.format(
         user_question=user_question, current_date=datetime.now().strftime("%Y-%m-%d")
     )
-    response = query({"inputs": prompt})
-    return {"message": response}
+    # response = query({"inputs": prompt})
+    return {"message": "Something"}

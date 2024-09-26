@@ -7,7 +7,7 @@ import { FaFutbol } from "react-icons/fa";
 import { query_backend } from '../api/query';
 
 export default function Home() {
-  const [response, setResponses] = useState<string>("");
+  const [response, setResponse] = useState<string>("");
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -17,10 +17,10 @@ export default function Home() {
     setIsLoading(true);
     try {
       const response = await query_backend(query);
-      setResponses(response);
+      setResponse(response);
     } catch (error) {
       console.error('Error querying backend:', error);
-      setResponses( "An error occurred while fetching the response.");
+      setResponse( "An error occurred while fetching the response.");
     } finally {
       setIsLoading(false);
       setQuery('');
