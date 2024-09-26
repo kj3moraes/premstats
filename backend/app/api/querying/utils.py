@@ -1,20 +1,23 @@
+from datetime import datetime
+
 import requests
 from app.core.config import settings
+from groq import Groq
 from pydantic import BaseModel
 
 # The following prompt has 2 variables:
 # - user_question: str
 # - current_date: str
-
 PROMPT = """
-<|begin_of_text|><|start_header_id|>user<|end_header_id|>
+You are a Natural language to SQL bot. You must only output SQL code to answer the user's question.
+
 Generate a SQL query to answer this question: `{user_question}`
 - if the question cannot be answered given the database schema, return "I do not know"
 - recall that the current date in YYYY-MM-DD format is {current_date} 
 - full_time_result is either "H" (home win), "A" (away win), or "D" (draw)
 - half_time_result is either "H" (home win), "A" (away win), or "D" (draw)
 
-DDL statements:
+The schema for the table is as follows:
 CREATE TABLE public.referee (
 	id serial4 NOT NULL,
 	"name" varchar NOT NULL,
@@ -97,24 +100,32 @@ CREATE TABLE public."match" (
 	CONSTRAINT match_home_team_name_fkey FOREIGN KEY (home_team_name) REFERENCES public.team("name"),
 	CONSTRAINT match_referee_name_fkey FOREIGN KEY (referee_name) REFERENCES public.referee("name"),
 	CONSTRAINT match_season_name_fkey FOREIGN KEY (season_name) REFERENCES public.season("name")
-);|eot_id|><|start_header_id|>assistant<|end_header_id|>
+);
 
 Only answer with the best SQL query to answer the question `{user_question}`:
-```sql
+```SQL
 """
-
-
-headers = {
-    "Accept": "application/json",
-    "Authorization": f"Bearer {settings.NL2SQL_API_KEY}",
-    "Content-Type": "application/json",
-}
-
-
-def query(payload):
-    response = requests.post(settings.NL2SQL_API_URL, headers=headers, json=payload)
-    return response.json()
 
 
 class StatsRequest(BaseModel):
     message: str
+
+
+def get_sql(query: str):
+    headers = {
+        "Accept": "application/json",
+        "Authorization": f"Bearer {settings.NL2SQL_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    prompt = PROMPT.format(
+        user_question=query, current_date=datetime.now().strftime("%Y-%m-%d")
+    )
+    payload = {
+        "inputs": prompt,
+        "parameters": {},
+    }
+
+    response = requests.post(settings.NL2SQL_API_URL, headers=headers, json=payload)
+    response_text = response.json()[0]["generated_text"].strip()
+    sql = response_text.split("```SQL")[1]
+    return sql

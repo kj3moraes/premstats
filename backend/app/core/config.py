@@ -70,9 +70,10 @@ class Settings(BaseSettings):
             else:
                 raise ValueError(message)
 
-    # NL2SQL API settings
+    # OpenAI API settings
     NL2SQL_API_URL: HttpUrl
     NL2SQL_API_KEY: str
+    GROQ_API_KEY: str
 
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:
