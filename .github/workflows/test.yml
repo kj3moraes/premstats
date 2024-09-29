@@ -1,4 +1,5 @@
 name: Test Coverage of Backend
+
 on:
   push:
     branches:
@@ -7,31 +8,31 @@ on:
     types:
       - opened
       - synchronize
+
+env:
+  ENVIRONMENT: staging
+  DOCKER_IMAGE_BACKEND: backend 
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  BACKEND_CORS_ORIGIN: ${{ secrets.BACKEND_CORS_ORIGIN }}
+  GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+  PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
+  POSTGRES_SERVER: ${{ secrets.PROD_PG_SERVER }}
+  POSTGRES_PORT: 5432
+  POSTGRES_DB: ${{ secrets.PROD_PG_DB }}
+  POSTGRES_USER: ${{ secrets.PROD_PG_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.PROD_PG_PASSWORD }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
       - run: docker compose build
-        env:
-          ENVIRONMENT: staging
-          DOCKER_IMAGE_BACKEND: backend 
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          BACKEND_CORS_ORIGIN: ${{ secrets.BACKEND_CORS_ORIGIN }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
-          POSTGRES_SERVER: ${{ secrets.PROD_PG_SERVER }}
-          POSTGRES_PORT: 5432
-          POSTGRES_DB: ${{ secrets.PROD_PG_DB }}
-          POSTGRES_USER: ${{ secrets.PROD_PG_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.PROD_PG_PASSWORD }}
       - run: docker compose down -v --remove-orphans
       - run: docker compose up -d
       - name: Lint
@@ -46,8 +47,7 @@ jobs:
           path: backend/htmlcov
           include-hidden-files: true
 
-  # https://github.com/marketplace/actions/alls-green#why
-  alls-green:  # This job does nothing and is only used for the branch protection
+  alls-green:
     if: always()
     needs:
       - test
