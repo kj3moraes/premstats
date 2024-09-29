@@ -1,4 +1,4 @@
-name: Fly Deploy
+name: Fly Deploy to Production
 on:
   push:
     branches:
@@ -11,11 +11,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy ./backend --remote-only
+      - run: flyctl deploy ./backend --config fly.production.toml --remote-only 
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          ENVIRONMENT: production
+          BACKEND_CORS_ORIGIN: ${{ secrets.BACKEND_CORS_ORIGIN }}
+          PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
           POSTGRES_SERVER: ${{ secrets.PROD_PG_SERVER }}
           POSTGRES_PORT: 5432
           POSTGRES_DB: ${{ secrets.PROD_PG_DB }}
           POSTGRES_USER: ${{ secrets.PROD_PG_USER }}
           POSTGRES_PASSWORD: ${{ secrets.PROD_PG_PASSWORD }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}

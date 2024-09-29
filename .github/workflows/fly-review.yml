@@ -1,39 +1,29 @@
-name: Deploy Review App
+name: Fly Deploy to Review
 on:
-  # Run this workflow on every PR event. Existing review apps will be updated when the PR is updated.
   pull_request:
-    types: [opened, reopened, synchronize, closed]
-
-env:
-  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-  # Set these to your Fly.io organization and preferred region.
-  FLY_REGION: iad
-  FLY_ORG: personal
-
+    types: [opened, synchronize, reopened]
 jobs:
-  review_app:
-    runs-on: ubuntu-latest
+  deploy:
+    name: Deploy app
     outputs:
       url: ${{ steps.deploy.outputs.url }}
-    # Only run one deployment at a time per PR.
-    concurrency:
-      group: pr-${{ github.event.number }}
-
-    # Deploying apps with this "review" environment allows the URL for the app to be displayed in the PR UI.
-    # Feel free to change the name of this environment.
+    runs-on: ubuntu-latest
+    concurrency: deploy-group    # optional: ensure only one action runs at a time
     environment:
       name: review
-      # The script in the `deploy` sets the URL output for each review app.
       url: ${{ steps.deploy.outputs.url }}
-
-    steps:
-      - name: Get code
-        uses: actions/checkout@v4
-
-      - name: Deploy PR app to Fly.io
-        id: deploy
-        uses: kj3moraes/fly-pr-review-apps@0.3.2
-        with:
-          path: backend
-          config: fly.staging.toml
-          secrets: PROJECT_NAME=premstats ENVIRONMENT=staging POSTGRES_SERVER=${{ secrets.STAGING_PG_SERVER }} POSTGRES_PORT=5432 POSTGRES_DB=${{ secrets.STAGING_PG_DB }} POSTGRES_USER=${{ secrets.STAGING_PG_USER }} POSTGRES_PASSWORD=${{ secrets.STAGING_PG_PASSWORD }}
+    steps: 
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy ./backend --config fly.staging.toml --remote-only 
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          ENVIRONMENT: staging
+          BACKEND_CORS_ORIGIN: ${{ secrets.BACKEND_CORS_ORIGIN }}
+          PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
+          POSTGRES_SERVER: ${{ secrets.STAGING_PG_SERVER }}
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: ${{ secrets.STAGING_PG_DB }}
+          POSTGRES_USER: ${{ secrets.STAGING_PG_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.STAGING_PG_PASSWORD }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}

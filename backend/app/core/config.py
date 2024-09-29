@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     )
     DOMAIN: str = "localhost"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
+    PROJECT_NAME: str
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -39,7 +40,7 @@ class Settings(BaseSettings):
 
     BACKEND_CORS_ORIGINS: Annotated[list[AnyUrl] | str, BeforeValidator(parse_cors)] = []
 
-    PROJECT_NAME: str
+    # Database settings
     POSTGRES_SERVER: str
     POSTGRES_PORT: int
     POSTGRES_USER: str
@@ -68,6 +69,9 @@ class Settings(BaseSettings):
                 warnings.warn(message, stacklevel=1)
             else:
                 raise ValueError(message)
+
+    # OpenAI API settings
+    GROQ_API_KEY: str
 
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:

@@ -29,30 +29,6 @@ parser.add_argument(
 BASE_URL = "http://localhost:8000"
 
 
-def parse_date(date_str: str) -> str:
-    """Parses the date from the CSV file and outputs it in the YYYY-MM-DD
-        format.
-
-    Args:
-        date_str (str): the date string from the CSV column
-
-    Raises:
-        Exception: if the date cannot be parsed.
-
-    Returns:
-        str: date in the format YYYY-MM-DD
-    """
-
-    try:
-        date_obj = datetime.strptime(date_str, "%d/%m/%Y").strftime("%Y-%m-%d")
-    except ValueError as e:
-        date_obj = datetime.strptime(date_str, "%d/%m/%y").strftime("%Y-%m-%d")
-    except Exception as e:
-        raise Exception("Failed to parse the date ", date_str)
-    finally:
-        return date_obj
-
-
 def parse_float(value: str) -> float:
     return float(value) if value else None
 
@@ -121,7 +97,7 @@ def create_match(season_name, row: Dict[str, Any]):
     match_data = {
         "season_name": season["name"],
         "division": row["Div"],
-        "match_date": parse_date(row["Date"]),
+        "match_date": row["Date"],
         "match_time": row["Time"] if "Time" in row else None,
         "home_team_name": home_team["name"],
         "away_team_name": away_team["name"],

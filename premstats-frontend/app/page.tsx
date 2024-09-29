@@ -1,61 +1,84 @@
-'use client'
-
-import React, { useState } from 'react';
-import { Box, Container, Heading, Input, Text, InputGroup, InputRightElement, Icon, Flex, ChakraProvider, VStack, HStack } from "@chakra-ui/react";
-import { ArrowForwardIcon } from "@chakra-ui/icons";
+"use client";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import React, { useState } from "react";
 import { FaFutbol } from "react-icons/fa";
+import { query_backend } from "../api/query";
 
 export default function Home() {
-  const [responses, setResponses] = useState<string[]>([]);
+  const [response, setResponse] = useState<string>("");
+  const [query, setQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulating a response. In a real app, you'd make an API call here.
-    setResponses([...responses, "This is a sample response. Replace with actual API call results."]);
+    if (!query.trim()) return;
+    setIsLoading(true);
+    setError(null);
+    console.log("Querying backend with:", query);
+    console.log(process.env.BACKEND_API_URL);
+    try {
+      const response = await query_backend(query);
+      setResponse(response);
+    } catch (error) {
+      console.error("Error querying backend:", error);
+      setError(error instanceof Error ? error.message : "An unexpected error occurred");
+      setResponse("");
+    } finally {
+      setIsLoading(false);
+      setQuery("");
+    }
   };
 
   return (
-    <ChakraProvider>
-      <Box as="main" minHeight="100vh" bg="white">
-        <Container maxW="container.xl" py={8}>
-          <HStack alignItems="flex-start" spacing={8}>
-
-            {/* Left side */}
-            <VStack align="stretch" width="50%" spacing={4}>
-              <Flex alignItems="center">
-                <Icon as={FaFutbol} boxSize={8} mr={2} color="black" />
-                <Heading as="h1" size="2xl" color="black">
-                  premstats.xyz
-                </Heading>
-              </Flex>
-              <form onSubmit={handleSubmit}>
-                <InputGroup size="lg">
-                  <Input
-                    pr="4.5rem"
-                    placeholder="Ask about Premier League stats..."
-                    _placeholder={{ color: 'gray.500' }}
-                    borderColor="gray.300"
-                    bg="gray.100"
-                  />
-                  <InputRightElement width="4.5rem">
-                    <ArrowForwardIcon color="gray.500" boxSize={6} cursor="pointer" onClick={handleSubmit} />
-                  </InputRightElement>
-                </InputGroup>
-              </form>
-              <Text color="gray.500" fontSize="sm">
-                You can ask the system about any premier league statistic up to but not including the current season
-              </Text>
-            </VStack>
-
-            {/* Right side */}
-            <VStack align="stretch" width="50%" spacing={4}  p={4} borderRadius="md" minHeight="70vh">
-              {responses.map((response, index) => (
-                <Text key={index} color="gray.800">{response}</Text>
-              ))}
-            </VStack>
-          </HStack>
-        </Container>
-      </Box>
-    </ChakraProvider>
+    <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
+      <div className="w-full max-w-6xl flex flex-col md:flex-row md:items-center md:justify-between">
+        {/* Left Side */}
+        <div className="md:w-1/2 mb-8 md:mb-0 flex flex-col items-center md:items-start space-y-2">
+          <div className="flex flex-row space-x-4 justify-center">
+            <FaFutbol className="text-5xl text-primary-background" />
+            <h1 className="text-5xl font-bold mb-4 text-center md:text-left">
+              premstats.xyz
+            </h1>
+          </div>
+          <form onSubmit={handleSubmit} className="w-full max-w-md">
+            <Input
+              type="text"
+              placeholder="Ask about any match or team stats..."
+              className="w-full mb-2"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <p className="text-sm text-muted-foreground mt-2 text-center md:text-left">
+              You can ask about any Premier League season up to but not
+              including the current season.
+            </p>
+          </form>
+          <div>
+            <Alert className="w-full max-w-md">
+              <AlertTitle className="text-lg font-semibold">
+                Heads up!
+              </AlertTitle>
+              <AlertDescription>
+                This site is in beta mode and may not be fully functional.
+                Please report any issues to the developer.
+              </AlertDescription>
+            </Alert>
+          </div>
+        </div>
+        {/* Right side */}
+        <div className="md:w-1/2 p-4 rounded-lg">
+          {error && (
+            <Alert variant="destructive">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          {response && <p>{response}</p>}
+          {isLoading && <p>Loading...</p>}
+        </div>
+      </div>
+    </div>
   );
 }
