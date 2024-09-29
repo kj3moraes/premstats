@@ -1,6 +1,7 @@
 from typing import Annotated, List
 
 from app.core.db import get_session
+from app.core.security import verify_token
 from app.models import Referee
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import AfterValidator
@@ -11,7 +12,12 @@ router = APIRouter()
 
 
 # Referee CRUD operations
-@router.post("/add", response_model=Referee, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/add",
+    response_model=Referee,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
+)
 def create_referee(
     referee: Annotated[Referee, AfterValidator(Referee.model_validate)],
     session: Session = Depends(get_session),
@@ -49,7 +55,7 @@ def read_referee(referee_id: int, session: Session = Depends(get_session)):
     return referee
 
 
-@router.put("/update/{referee_id}", response_model=Referee)
+@router.put("/update/{referee_id}", response_model=Referee, include_in_schema=False)
 def update_referee(
     referee_id: int,
     referee: Annotated[Referee, AfterValidator(Referee.model_validate)],
@@ -67,7 +73,11 @@ def update_referee(
     return db_referee
 
 
-@router.delete("/delete/{referee_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/delete/{referee_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    include_in_schema=False,
+)
 def delete_referee(referee_id: int, session: Session = Depends(get_session)):
     referee = session.get(Referee, referee_id)
     if not referee:

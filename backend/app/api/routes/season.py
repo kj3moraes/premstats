@@ -10,7 +10,12 @@ from sqlmodel import Session, select
 router = APIRouter()
 
 
-@router.post("/add", response_model=Season, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/add",
+    response_model=Season,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
+)
 def create_season(
     season: Annotated[Season, AfterValidator(Season.model_validate)],
     session: Session = Depends(get_session),
@@ -47,7 +52,7 @@ def read_season(season_id: int, session: Session = Depends(get_session)):
     return season
 
 
-@router.put("/update/{season_id}", response_model=Season)
+@router.put("/update/{season_id}", response_model=Season, include_in_schema=False)
 def update_season(
     season_id: int,
     season: Annotated[Season, AfterValidator(Season.model_validate)],
@@ -65,7 +70,11 @@ def update_season(
     return db_season
 
 
-@router.delete("/delete/{season_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/delete/{season_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    include_in_schema=False,
+)
 def delete_season(season_id: int, session: Session = Depends(get_session)):
     season = session.get(Season, season_id)
     if not season:

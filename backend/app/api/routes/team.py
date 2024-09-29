@@ -10,7 +10,12 @@ from sqlmodel import Session, select
 router = APIRouter()
 
 
-@router.post("/add", response_model=Team, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/add",
+    response_model=Team,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
+)
 def create_team(
     team: Annotated[Team, AfterValidator(Team.model_validate)],
     session: Session = Depends(get_session),
@@ -47,7 +52,7 @@ def read_team(team_id: int, session: Session = Depends(get_session)):
     return team
 
 
-@router.put("/update/{team_id}", response_model=Team)
+@router.put("/update/{team_id}", response_model=Team, include_in_schema=False)
 def update_team(
     team_id: int,
     team: Annotated[Team, AfterValidator(Team.model_validate)],
@@ -65,7 +70,11 @@ def update_team(
     return db_team
 
 
-@router.delete("/delete/{team_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/delete/{team_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    include_in_schema=False,
+)
 def delete_team(team_id: int, session: Session = Depends(get_session)):
     team = session.get(Team, team_id)
     if not team:
