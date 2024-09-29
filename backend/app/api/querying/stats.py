@@ -20,16 +20,17 @@ def get_stats(request: StatsRequest, session: Session = Depends(get_session)):
     try:
         sql_query = get_sql(user_question)
     except Exception:
-        if sql_query == "Invalid":
-            raise HTTPException(
-                status_code=400,
-                detail=f"Sorry, I couldn't understand your question. Please try again.",
-            )
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail=f"There currently is a problem with the service. Please try again later.",
-            )
+        raise HTTPException(
+            status_code=400,
+            detail=f"There currently is a problem with the service. Please try again later.",
+        )
+
+    # If the SQL query is invalid, return an error
+    if sql_query == "Invalid":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Sorry, I couldn't understand your question. Please try again.",
+        )
 
     try:
         # Execute the SQL query
