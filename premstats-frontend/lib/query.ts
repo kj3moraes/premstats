@@ -4,7 +4,6 @@ interface BackendRequest {
 
 interface BackendResponse {
   message: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Array<{ [key: string]: any }> | number | string;
 }
 
@@ -15,9 +14,9 @@ export const query_backend = async (query: string): Promise<string> => {
   };
 
   console.log(requestBody);
+
   // Send a POST request to the search API
   console.log(process.env.BACKEND_API_URL);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const api_query_path = process.env.BACKEND_API_URL + '/api/query/ask_stats';
   const response = await fetch(api_query_path, {
     method: 'POST',

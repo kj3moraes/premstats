@@ -6,7 +6,7 @@ import './globals.css';
 
 const notosans = Noto_Sans({
   variable: '--font-notosans',
-  subsets: ['latin'], 
+  subsets: ['latin'],
   display: 'swap',
   weight: ['200', '400', '800'],
 });
@@ -22,12 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'  className={clsx(
-      notosans.variable
-    )}>
-      <body
-        className={`antialiased`}
-      >
+    <html lang='en' className={clsx(notosans.variable)}>
+      <body className={`antialiased`}>
         {children}
         <Analytics />
       </body>

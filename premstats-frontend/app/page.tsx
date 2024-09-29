@@ -4,8 +4,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import React, { useState } from 'react';
 import { Trophy } from 'lucide-react';
 import { query_backend } from '@/lib/query';
-import { Toaster } from "@/components/ui/toaster"
-import { useToast } from "@/hooks/use-toast"
+import { Toaster } from '@/components/ui/toaster';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Home() {
   const [response, setResponse] = useState<string>('');
@@ -17,7 +17,7 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
-    
+
     // Reset state
     setIsLoading(true);
     setResponse('');
@@ -34,11 +34,13 @@ export default function Home() {
         error instanceof Error ? error.message : 'An unexpected error occurred'
       );
       toast({
-        variant: "destructive",
-        title: "Error!",
-        description: error instanceof Error ? error.message : 'An unexpected error occurred',
-
-      })
+        variant: 'destructive',
+        title: 'Error!',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'An unexpected error occurred',
+      });
       setResponse('');
     } finally {
       setIsLoading(false);
