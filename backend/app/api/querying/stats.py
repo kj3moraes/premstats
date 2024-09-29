@@ -16,22 +16,29 @@ router = APIRouter()
 def get_stats(request: StatsRequest, session: Session = Depends(get_session)):
     user_question = request.message
 
-    # Execute the SQL query
+    # Convert the natural language question to SQL
     try:
-        # Convert the natural language question to SQL
         sql_query = get_sql(user_question)
-        print(sql_query)
+    except Exception:
         if sql_query == "Invalid":
             raise HTTPException(
                 status_code=400,
                 detail=f"Sorry, I couldn't understand your question. Please try again.",
             )
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail=f"There currently is a problem with the service. Please try again later.",
+            )
+
+    try:
+        # Execute the SQL query
         sql = text(sql_query)
         results = session.exec(sql).all()
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=400,
-            detail=f"There currently is a problem with the service. Please try again.",
+            detail=f"There currently is a problem with the service. Please try again later.",
         )
 
     data = [result._asdict() for result in results]
