@@ -1,6 +1,7 @@
 from typing import Annotated, List
 
 from app.core.db import get_session
+from app.core.security import verify_add_token, verify_delete_token, verify_update_token
 from app.models import Team
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import AfterValidator
@@ -10,10 +11,16 @@ from sqlmodel import Session, select
 router = APIRouter()
 
 
-@router.post("/add", response_model=Team, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/add",
+    response_model=Team,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
+)
 def create_team(
     team: Annotated[Team, AfterValidator(Team.model_validate)],
     session: Session = Depends(get_session),
+    token: str = Depends(verify_add_token),
 ):
     try:
         session.add(team)
@@ -47,11 +54,12 @@ def read_team(team_id: int, session: Session = Depends(get_session)):
     return team
 
 
-@router.put("/update/{team_id}", response_model=Team)
+@router.put("/update/{team_id}", response_model=Team, include_in_schema=False)
 def update_team(
     team_id: int,
     team: Annotated[Team, AfterValidator(Team.model_validate)],
     session: Session = Depends(get_session),
+    token: str = Depends(verify_update_token),
 ):
     db_team = session.get(Team, team_id)
     if not db_team:
@@ -65,8 +73,16 @@ def update_team(
     return db_team
 
 
-@router.delete("/delete/{team_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_team(team_id: int, session: Session = Depends(get_session)):
+@router.delete(
+    "/delete/{team_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    include_in_schema=False,
+)
+def delete_team(
+    team_id: int,
+    session: Session = Depends(get_session),
+    token: str = Depends(verify_delete_token),
+):
     team = session.get(Team, team_id)
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")

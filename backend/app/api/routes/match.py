@@ -1,6 +1,7 @@
 from typing import Annotated, List
 
 from app.core.db import get_session
+from app.core.security import verify_add_token, verify_delete_token, verify_update_token
 from app.models import Match
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import AfterValidator
@@ -14,10 +15,12 @@ router = APIRouter()
     "/add",
     response_model=Match,
     status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
 )
 def create_match(
     match: Match,
     session: Session = Depends(get_session),
+    token: str = Depends(verify_add_token),
 ):
     session.add(match)
     session.commit()
@@ -41,11 +44,12 @@ def read_match(match_id: int, session: Session = Depends(get_session)):
     return match
 
 
-@router.put("/update/{match_id}", response_model=Match)
+@router.put("/update/{match_id}", response_model=Match, include_in_schema=False)
 def update_match(
     match_id: int,
     match: Annotated[Match, AfterValidator(Match.model_validate)],
     session: Session = Depends(get_session),
+    token: str = Depends(verify_update_token),
 ):
     db_match = session.get(Match, match_id)
     if not db_match:
@@ -58,8 +62,16 @@ def update_match(
     return db_match
 
 
-@router.delete("/delete/{match_id}")
-def delete_match(match_id: int, session: Session = Depends(get_session)):
+@router.delete(
+    "/delete/{match_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    include_in_schema=False,
+)
+def delete_match(
+    match_id: int,
+    session: Session = Depends(get_session),
+    token: str = Depends(verify_delete_token),
+):
     match = session.get(Match, match_id)
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")

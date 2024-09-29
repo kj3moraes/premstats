@@ -1,6 +1,7 @@
 from typing import Annotated, List
 
 from app.core.db import get_session
+from app.core.security import verify_add_token, verify_delete_token, verify_update_token
 from app.models import Season
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import AfterValidator
@@ -10,10 +11,16 @@ from sqlmodel import Session, select
 router = APIRouter()
 
 
-@router.post("/add", response_model=Season, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/add",
+    response_model=Season,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
+)
 def create_season(
     season: Annotated[Season, AfterValidator(Season.model_validate)],
     session: Session = Depends(get_session),
+    token: str = Depends(verify_add_token),
 ):
     try:
         session.add(season)
@@ -47,11 +54,12 @@ def read_season(season_id: int, session: Session = Depends(get_session)):
     return season
 
 
-@router.put("/update/{season_id}", response_model=Season)
+@router.put("/update/{season_id}", response_model=Season, include_in_schema=False)
 def update_season(
     season_id: int,
     season: Annotated[Season, AfterValidator(Season.model_validate)],
     session: Session = Depends(get_session),
+    token: str = Depends(verify_update_token),
 ):
     db_season = session.get(Season, season_id)
     if not db_season:
@@ -65,8 +73,16 @@ def update_season(
     return db_season
 
 
-@router.delete("/delete/{season_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_season(season_id: int, session: Session = Depends(get_session)):
+@router.delete(
+    "/delete/{season_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    include_in_schema=False,
+)
+def delete_season(
+    season_id: int,
+    session: Session = Depends(get_session),
+    token: str = Depends(verify_delete_token),
+):
     season = session.get(Season, season_id)
     if not season:
         raise HTTPException(status_code=404, detail="Season not found")
