@@ -26,7 +26,7 @@ def get_stats(request: StatsRequest, session: Session = Depends(get_session)):
         )
 
     # If the SQL query is invalid, return an error
-    if sql_query == "Invalid":
+    if sql_query.lower().strip() == "invalid":
         raise HTTPException(
             status_code=400,
             detail=f"Sorry, I couldn't understand your question. Please try again.",
