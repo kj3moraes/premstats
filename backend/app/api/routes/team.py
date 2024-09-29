@@ -1,6 +1,7 @@
 from typing import Annotated, List
 
 from app.core.db import get_session
+from app.core.security import verify_add_token, verify_delete_token, verify_update_token
 from app.models import Team
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import AfterValidator
@@ -19,6 +20,7 @@ router = APIRouter()
 def create_team(
     team: Annotated[Team, AfterValidator(Team.model_validate)],
     session: Session = Depends(get_session),
+    token: str = Depends(verify_add_token),
 ):
     try:
         session.add(team)
@@ -57,6 +59,7 @@ def update_team(
     team_id: int,
     team: Annotated[Team, AfterValidator(Team.model_validate)],
     session: Session = Depends(get_session),
+    token: str = Depends(verify_update_token),
 ):
     db_team = session.get(Team, team_id)
     if not db_team:
@@ -75,7 +78,11 @@ def update_team(
     status_code=status.HTTP_204_NO_CONTENT,
     include_in_schema=False,
 )
-def delete_team(team_id: int, session: Session = Depends(get_session)):
+def delete_team(
+    team_id: int,
+    session: Session = Depends(get_session),
+    token: str = Depends(verify_delete_token),
+):
     team = session.get(Team, team_id)
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")

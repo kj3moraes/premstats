@@ -1,6 +1,7 @@
 from typing import Annotated, List
 
 from app.core.db import get_session
+from app.core.security import verify_add_token, verify_delete_token, verify_update_token
 from app.models import Season
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import AfterValidator
@@ -19,6 +20,7 @@ router = APIRouter()
 def create_season(
     season: Annotated[Season, AfterValidator(Season.model_validate)],
     session: Session = Depends(get_session),
+    token: str = Depends(verify_add_token),
 ):
     try:
         session.add(season)
@@ -57,6 +59,7 @@ def update_season(
     season_id: int,
     season: Annotated[Season, AfterValidator(Season.model_validate)],
     session: Session = Depends(get_session),
+    token: str = Depends(verify_update_token),
 ):
     db_season = session.get(Season, season_id)
     if not db_season:
@@ -75,7 +78,11 @@ def update_season(
     status_code=status.HTTP_204_NO_CONTENT,
     include_in_schema=False,
 )
-def delete_season(season_id: int, session: Session = Depends(get_session)):
+def delete_season(
+    season_id: int,
+    session: Session = Depends(get_session),
+    token: str = Depends(verify_delete_token),
+):
     season = session.get(Season, season_id)
     if not season:
         raise HTTPException(status_code=404, detail="Season not found")

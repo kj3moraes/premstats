@@ -1,6 +1,7 @@
 from typing import Annotated, List
 
 from app.core.db import get_session
+from app.core.security import verify_add_token, verify_delete_token, verify_update_token
 from app.models import Match
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import AfterValidator
@@ -19,6 +20,7 @@ router = APIRouter()
 def create_match(
     match: Match,
     session: Session = Depends(get_session),
+    token: str = Depends(verify_add_token),
 ):
     session.add(match)
     session.commit()
@@ -47,6 +49,7 @@ def update_match(
     match_id: int,
     match: Annotated[Match, AfterValidator(Match.model_validate)],
     session: Session = Depends(get_session),
+    token: str = Depends(verify_update_token),
 ):
     db_match = session.get(Match, match_id)
     if not db_match:
@@ -64,7 +67,11 @@ def update_match(
     status_code=status.HTTP_204_NO_CONTENT,
     include_in_schema=False,
 )
-def delete_match(match_id: int, session: Session = Depends(get_session)):
+def delete_match(
+    match_id: int,
+    session: Session = Depends(get_session),
+    token: str = Depends(verify_delete_token),
+):
     match = session.get(Match, match_id)
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
