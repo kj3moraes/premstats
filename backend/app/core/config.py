@@ -47,6 +47,11 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
 
+    # Authentication settings
+    ADD_ACCESS_TOKEN: str
+    UPDATE_ACCESS_TOKEN: str
+    DELETE_ACCESS_TOKEN: str
+
     @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
