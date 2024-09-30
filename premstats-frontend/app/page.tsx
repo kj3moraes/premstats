@@ -11,7 +11,6 @@ export default function Home() {
   const [response, setResponse] = useState<string>('');
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,7 +20,6 @@ export default function Home() {
     // Reset state
     setIsLoading(true);
     setResponse('');
-    setError(null);
 
     // Query backend
     console.log('Querying backend with:', query);
@@ -29,17 +27,11 @@ export default function Home() {
       const response = await query_backend(query);
       setResponse(response);
     } catch (error) {
-      console.error('Error querying backend:', error);
-      setError(
-        error instanceof Error ? error.message : 'An unexpected error occurred'
-      );
+      console.error('Error querying backend:', error); 
       toast({
         variant: 'destructive',
         title: 'Error!',
-        description:
-          error instanceof Error
-            ? error.message
-            : 'An unexpected error occurred',
+        description: (error as Error).message
       });
       setResponse('');
     } finally {
@@ -83,13 +75,7 @@ export default function Home() {
           </div>
         </div>
         {/* Right side */}
-        <div className='rounded-lg p-4 md:w-1/2'>
-          {error && (
-            <Alert variant='destructive'>
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+        <div className='rounded-lg p-4 md:w-1/2'> 
           {response && <p>{response}</p>}
           {isLoading && <p>Loading...</p>}
         </div>
