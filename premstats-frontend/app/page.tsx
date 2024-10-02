@@ -6,6 +6,7 @@ import { Trophy } from 'lucide-react';
 import { query_backend } from '@/lib/query';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
+import SuggestionButton from '@/components/suggestion-button';
 
 export default function Home() {
   const [response, setResponse] = useState<string>('');
@@ -27,11 +28,11 @@ export default function Home() {
       const response = await query_backend(query);
       setResponse(response);
     } catch (error) {
-      console.error('Error querying backend:', error); 
+      console.error('Error querying backend:', error);
       toast({
         variant: 'destructive',
         title: 'Error!',
-        description: (error as Error).message
+        description: (error as Error).message,
       });
       setResponse('');
     } finally {
@@ -44,8 +45,8 @@ export default function Home() {
     <div className='flex min-h-screen items-center justify-center bg-background p-4 md:p-8'>
       <div className='flex w-full max-w-6xl flex-col md:flex-row md:items-center md:justify-between'>
         {/* Left Side */}
-        <div className='mb-8 flex flex-col items-center space-y-2 md:mb-0 md:w-1/2 md:items-start'>
-          <div className='flex flex-row justify-center space-x-4'>
+        <div className='mb-8 flex flex-col items-center gap-2 md:mb-0 md:w-1/2 md:items-start'>
+          <div className='flex flex-row items-center justify-center'>
             <Trophy size={48} />
             <h1 className='mb-4 text-center md:text-left'>premstats.xyz</h1>
           </div>
@@ -62,8 +63,16 @@ export default function Home() {
               including the current season.
             </p>
           </form>
+          <div className='grid w-full max-w-md grid-cols-2 gap-2'>
+            <SuggestionButton text='Seasons QPR played in' />
+            <SuggestionButton text='Matches with > 6 goals' />
+          </div>
+          <div className='flex w-full max-w-md flex-col gap-2'>
+            <SuggestionButton text='Matches that Mike Dean refereed in 19/18 season' />
+            <SuggestionButton text='betting odds for Liverpool vs ManU 22/23 away game' />
+          </div>
           <div>
-            <Alert className='w-full max-w-md'>
+            <Alert variant='highlight' className='w-full max-w-md'>
               <AlertTitle className='text-lg font-semibold'>
                 Heads up!
               </AlertTitle>
@@ -74,12 +83,13 @@ export default function Home() {
             </Alert>
           </div>
         </div>
+
         {/* Right side */}
-        <div className='rounded-lg p-4 md:w-1/2'> 
+        <div className='rounded-lg p-4 md:w-1/2'>
           {response && <p>{response}</p>}
           {isLoading && (
-            <div className="flex justify-center items-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
+            <div className='flex items-center justify-center'>
+              <div className='h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-gray-900'></div>
             </div>
           )}
         </div>
