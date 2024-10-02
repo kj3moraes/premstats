@@ -76,7 +76,7 @@ class Settings(BaseSettings):
                 raise ValueError(message)
 
     # OpenAI API settings
-    GROQ_API_KEY: str
+    TOGETHER_API_KEY: str
 
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:
