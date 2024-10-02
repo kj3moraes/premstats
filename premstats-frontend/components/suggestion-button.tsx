@@ -1,14 +1,15 @@
+// SuggestionButton.tsx
 import { Button } from '@/components/ui/button';
 import { Lightbulb } from 'lucide-react';
-import { query_backend } from '@/lib/query';
 
 type SuggestionButtonProps = {
   text: string;
+  onQuery: (query: string) => void;
 };
 
-export default function SuggestionButton({ text }: SuggestionButtonProps) {
+export default function SuggestionButton({ text, onQuery }: SuggestionButtonProps) {
   const handleSubmit = () => {
-    query_backend(text);
+    onQuery(text);
   };
 
   return (

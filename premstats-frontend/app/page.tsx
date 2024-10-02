@@ -1,3 +1,4 @@
+// Home.tsx
 'use client';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -14,18 +15,14 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-
-    // Reset state
+  const handleQuery = async (queryText: string) => {
     setIsLoading(true);
     setResponse('');
+    setQuery(queryText);
 
-    // Query backend
-    console.log('Querying backend with:', query);
+    console.log('Querying backend with:', queryText);
     try {
-      const response = await query_backend(query);
+      const response = await query_backend(queryText);
       setResponse(response);
     } catch (error) {
       console.error('Error querying backend:', error);
@@ -37,8 +34,14 @@ export default function Home() {
       setResponse('');
     } finally {
       setIsLoading(false);
-      setQuery('');
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    await handleQuery(query);
+    setQuery('');
   };
 
   return (
@@ -64,12 +67,12 @@ export default function Home() {
             </p>
           </form>
           <div className='grid w-full max-w-md grid-cols-2 gap-2'>
-            <SuggestionButton text='Seasons QPR played in' />
-            <SuggestionButton text='Matches with > 6 goals' />
+            <SuggestionButton text='Seasons QPR played in' onQuery={handleQuery} />
+            <SuggestionButton text='Matches with > 6 goals' onQuery={handleQuery} />
           </div>
           <div className='flex w-full max-w-md flex-col gap-2'>
-            <SuggestionButton text='Matches that Mike Dean refereed in 19/18 season' />
-            <SuggestionButton text='betting odds for Liverpool vs ManU 22/23 away game' />
+            <SuggestionButton text='Matches that Mike Dean refereed in 19/18 season' onQuery={handleQuery} />
+            <SuggestionButton text='betting odds for Liverpool vs ManU 22/23 away game' onQuery={handleQuery} />
           </div>
           <div>
             <Alert variant='highlight' className='w-full max-w-md'>
@@ -83,7 +86,6 @@ export default function Home() {
             </Alert>
           </div>
         </div>
-
         {/* Right side */}
         <div className='rounded-lg p-4 md:w-1/2'>
           {response && <p>{response}</p>}
