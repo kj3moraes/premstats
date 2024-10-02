@@ -7,7 +7,10 @@ type SuggestionButtonProps = {
   onQuery: (query: string) => void;
 };
 
-export default function SuggestionButton({ text, onQuery }: SuggestionButtonProps) {
+export default function SuggestionButton({
+  text,
+  onQuery,
+}: SuggestionButtonProps) {
   const handleSubmit = () => {
     onQuery(text);
   };

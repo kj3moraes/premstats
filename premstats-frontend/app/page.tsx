@@ -3,7 +3,7 @@
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import React, { useState } from 'react';
-import { Trophy } from 'lucide-react';
+import { FaFutbol } from 'react-icons/fa';
 import { query_backend } from '@/lib/query';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
@@ -49,8 +49,8 @@ export default function Home() {
       <div className='flex w-full max-w-6xl flex-col md:flex-row md:items-center md:justify-between'>
         {/* Left Side */}
         <div className='mb-8 flex flex-col items-center gap-2 md:mb-0 md:w-1/2 md:items-start'>
-          <div className='flex flex-row items-center justify-center'>
-            <Trophy size={48} />
+          <div className='flex flex-row items-center justify-center gap-4'>
+            <FaFutbol size={40} />
             <h1 className='mb-4 text-center md:text-left'>premstats.xyz</h1>
           </div>
           <form onSubmit={handleSubmit} className='w-full max-w-md'>
@@ -67,12 +67,24 @@ export default function Home() {
             </p>
           </form>
           <div className='grid w-full max-w-md grid-cols-2 gap-2'>
-            <SuggestionButton text='Seasons QPR played in' onQuery={handleQuery} />
-            <SuggestionButton text='Matches with > 6 goals' onQuery={handleQuery} />
+            <SuggestionButton
+              text='Seasons QPR played in'
+              onQuery={handleQuery}
+            />
+            <SuggestionButton
+              text='Matches with > 6 goals'
+              onQuery={handleQuery}
+            />
           </div>
           <div className='flex w-full max-w-md flex-col gap-2'>
-            <SuggestionButton text='Matches that Mike Dean refereed in 19/18 season' onQuery={handleQuery} />
-            <SuggestionButton text='betting odds for Liverpool vs ManU 22/23 away game' onQuery={handleQuery} />
+            <SuggestionButton
+              text='Matches that Mike Dean refereed in 19/18 season'
+              onQuery={handleQuery}
+            />
+            <SuggestionButton
+              text='betting odds for Liverpool vs ManU 22/23 away game'
+              onQuery={handleQuery}
+            />
           </div>
           <div>
             <Alert variant='highlight' className='w-full max-w-md'>
