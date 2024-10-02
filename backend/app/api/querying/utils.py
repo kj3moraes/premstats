@@ -1,10 +1,7 @@
 from datetime import datetime
 from typing import List
 
-import requests
-from app.core.config import settings
 from fastapi import HTTPException
-from groq import Groq
 from pydantic import BaseModel
 from sqlalchemy import Row
 
@@ -16,8 +13,8 @@ You are a Natural language to SQL bot for a database of Premier League Matches.
 You must only output a single SQL query to answer the user's question.
 
 Instructions:
-- if the question cannot be answered given the database schema, return "Invalid"
-- if the question is invalid, return "Invalid"
+- if the question cannot be answered given the database schema, return "invalid"
+- if the question is invalid, return "invalid"
 - first season of the premier league in our database was 1993/94
 - ignore "division" in the schema
 - the "prem" is short for the Premier League
@@ -133,9 +130,11 @@ class StatsRequest(BaseModel):
     message: str
 
 
-client = Groq(
-    api_key=settings.GROQ_API_KEY,
-)
+import os
+
+from together import Together
+
+client = Together(api_key=os.environ.get("TOGETHER_API_KEY"))
 
 
 def get_sql(query: str):
@@ -149,7 +148,7 @@ def get_sql(query: str):
             },
             {"role": "user", "content": query},
         ],
-        model="llama-3.1-70b-versatile",
+        model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
     )
 
     sql = chat_completions.choices[0].message.content
@@ -169,7 +168,7 @@ def get_answer(user_question: str, data):
                 },
                 {"role": "user", "content": prompt},
             ],
-            model="llama-3.1-70b-versatile",
+            model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
         )
 
     except Exception as e:

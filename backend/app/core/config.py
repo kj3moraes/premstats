@@ -42,7 +42,7 @@ class Settings(BaseSettings):
 
     # Database settings
     POSTGRES_SERVER: str
-    POSTGRES_PORT: int
+    POSTGRES_PORT: int = 5432
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
@@ -76,7 +76,7 @@ class Settings(BaseSettings):
                 raise ValueError(message)
 
     # OpenAI API settings
-    GROQ_API_KEY: str
+    TOGETHER_API_KEY: str
 
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:

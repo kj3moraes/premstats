@@ -1,63 +1,94 @@
-"use client";
-import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import React, { useState } from "react";
-import { FaFutbol } from "react-icons/fa";
-import { query_backend } from "../api/query";
+// Home.tsx
+'use client';
+import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import React, { useState } from 'react';
+import { FaFutbol } from 'react-icons/fa';
+import { query_backend } from '@/lib/query';
+import { Toaster } from '@/components/ui/toaster';
+import { useToast } from '@/hooks/use-toast';
+import SuggestionButton from '@/components/suggestion-button';
 
 export default function Home() {
-  const [response, setResponse] = useState<string>("");
-  const [query, setQuery] = useState("");
+  const [response, setResponse] = useState<string>('');
+  const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handleQuery = async (queryText: string) => {
+    setIsLoading(true);
+    setResponse('');
+    setQuery(queryText);
+
+    console.log('Querying backend with:', queryText);
+    try {
+      const response = await query_backend(queryText);
+      setResponse(response);
+    } catch (error) {
+      console.error('Error querying backend:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error!',
+        description: (error as Error).message,
+      });
+      setResponse('');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
-    setIsLoading(true);
-    setError(null);
-    console.log("Querying backend with:", query);
-    console.log(process.env.BACKEND_API_URL);
-    try {
-      const response = await query_backend(query);
-      setResponse(response);
-    } catch (error) {
-      console.error("Error querying backend:", error);
-      setError(error instanceof Error ? error.message : "An unexpected error occurred");
-      setResponse("");
-    } finally {
-      setIsLoading(false);
-      setQuery("");
-    }
+    await handleQuery(query);
+    setQuery('');
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
-      <div className="w-full max-w-6xl flex flex-col md:flex-row md:items-center md:justify-between">
+    <div className='flex min-h-screen items-center justify-center bg-background p-4 md:p-8'>
+      <div className='flex w-full max-w-6xl flex-col md:flex-row md:items-center md:justify-between'>
         {/* Left Side */}
-        <div className="md:w-1/2 mb-8 md:mb-0 flex flex-col items-center md:items-start space-y-2">
-          <div className="flex flex-row space-x-4 justify-center">
-            <FaFutbol className="text-5xl text-primary-background" />
-            <h1 className="text-5xl font-bold mb-4 text-center md:text-left">
-              premstats.xyz
-            </h1>
+        <div className='mb-8 flex flex-col items-center gap-2 md:mb-0 md:w-1/2 md:items-start'>
+          <div className='flex flex-row items-center justify-center gap-4'>
+            <FaFutbol size={40} />
+            <h1 className='mb-4 text-center md:text-left'>premstats.xyz</h1>
           </div>
-          <form onSubmit={handleSubmit} className="w-full max-w-md">
+          <form onSubmit={handleSubmit} className='w-full max-w-md'>
             <Input
-              type="text"
-              placeholder="Ask about any match or team stats..."
-              className="w-full mb-2"
+              type='text'
+              placeholder='Ask about any match or team stats...'
+              className='mb-2 w-full'
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <p className="text-sm text-muted-foreground mt-2 text-center md:text-left">
+            <p className='mt-2 text-center text-sm text-muted-foreground md:text-left'>
               You can ask about any Premier League season up to but not
               including the current season.
             </p>
           </form>
+          <div className='grid w-full max-w-md grid-cols-2 gap-2'>
+            <SuggestionButton
+              text='Seasons QPR played in'
+              onQuery={handleQuery}
+            />
+            <SuggestionButton
+              text='Matches with > 6 goals'
+              onQuery={handleQuery}
+            />
+          </div>
+          <div className='flex w-full max-w-md flex-col gap-2'>
+            <SuggestionButton
+              text='Matches that Mike Dean refereed in 19/18 season'
+              onQuery={handleQuery}
+            />
+            <SuggestionButton
+              text='betting odds for Liverpool vs ManU 22/23 away game'
+              onQuery={handleQuery}
+            />
+          </div>
           <div>
-            <Alert className="w-full max-w-md">
-              <AlertTitle className="text-lg font-semibold">
+            <Alert variant='highlight' className='w-full max-w-md'>
+              <AlertTitle className='text-lg font-semibold'>
                 Heads up!
               </AlertTitle>
               <AlertDescription>
@@ -68,17 +99,16 @@ export default function Home() {
           </div>
         </div>
         {/* Right side */}
-        <div className="md:w-1/2 p-4 rounded-lg">
-          {error && (
-            <Alert variant="destructive">
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+        <div className='rounded-lg p-4 md:w-1/2'>
           {response && <p>{response}</p>}
-          {isLoading && <p>Loading...</p>}
+          {isLoading && (
+            <div className='flex items-center justify-center'>
+              <div className='h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-gray-900'></div>
+            </div>
+          )}
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }

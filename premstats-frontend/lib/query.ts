@@ -2,11 +2,17 @@ interface BackendRequest {
   message: string;
 }
 
-interface BackendResponse {
+interface SuccessResponse {
   message: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Array<{ [key: string]: any }> | number | string;
 }
+
+interface ErrorResponse {
+  detail: string;
+}
+
+type BackendResponse = SuccessResponse | ErrorResponse;
 
 export const query_backend = async (query: string): Promise<string> => {
   // Construct the search request body
@@ -15,22 +21,31 @@ export const query_backend = async (query: string): Promise<string> => {
   };
 
   console.log(requestBody);
+
   // Send a POST request to the search API
   console.log(process.env.BACKEND_API_URL);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const api_query_path = process.env.BACKEND_API_URL + "/api/query/ask_stats";
+  const api_query_path = process.env.BACKEND_API_URL + '/api/query/ask_stats';
   const response = await fetch(api_query_path, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(requestBody),
   });
 
   const jsonResponse: BackendResponse = await response.json();
+  console.log('The response is ', jsonResponse);
   if (!response.ok) {
-    throw new Error(jsonResponse.message);
+    if ('detail' in jsonResponse) {
+      throw new Error(jsonResponse.detail);
+    } else {
+      throw new Error('Unknown error occurred.');
+    }
   }
 
-  return jsonResponse.message;
+  if ('message' in jsonResponse) {
+    return jsonResponse.message;
+  } else {
+    throw new Error(jsonResponse.detail);
+  }
 };

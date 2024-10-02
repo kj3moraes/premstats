@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 import requests
+from dotenv import load_dotenv
 from tqdm import tqdm
 
 parser = ArgumentParser()
@@ -27,6 +28,8 @@ parser.add_argument(
 
 # Default to localhost
 BASE_URL = "http://localhost:8000"
+load_dotenv()
+ADD_ACCESS_TOKEN = os.getenv("ADD_ACCESS_TOKEN")
 
 
 def parse_float(value: str) -> float:
@@ -62,7 +65,10 @@ def get_or_create(model: str, **kwargs) -> Dict[str, Any]:
                         return instance
 
             # If not found, try to create it
-            response = requests.post(f"{BASE_URL}/api/{model}/add", json=kwargs)
+            headers = {"Authorization": f"Bearer {ADD_ACCESS_TOKEN}"}
+            response = requests.post(
+                f"{BASE_URL}/api/{model}/add", json=kwargs, headers=headers
+            )
             if response.status_code == 201:
                 return response.json()
             elif response.status_code == 409:  # Assuming 409 is returned for conflicts
@@ -189,7 +195,8 @@ def create_match(season_name, row: Dict[str, Any]):
         ),
     }
 
-    response = requests.post(f"{BASE_URL}/api/match/add", json=match_data)
+    headers = {"Authorization": f"Bearer {ADD_ACCESS_TOKEN}"}
+    response = requests.post(f"{BASE_URL}/api/match/add", json=match_data, headers=headers)
     if response.status_code != 201:
         raise Exception(f"Failed to create match: {response.text}")
 
