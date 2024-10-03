@@ -18,6 +18,7 @@ Instructions:
 - first season of the premier league in our database was 1993/94
 - ignore "division" in the schema
 - the "prem" is short for the Premier League
+- when giving betting odds, only give bet365, bet_and_win, and vc_bet unless asked for a specific one
 - Use the full names of teams (Man United is Manchester United, etc.)
 - if teams ask for QPR, use "QPR" not "Queens Park Rangers"
 - recall that the current date in YYYY-MM-DD format is {current_date} 
@@ -189,6 +190,6 @@ def convert_rows_to_essentials(results: List[Row]):
     # Remove None values and odds information
     for d in dicts:
         for k, v in list(d.items()):
-            if v is None or "odds" in k:
+            if v is None:
                 del d[k]
     return dicts
