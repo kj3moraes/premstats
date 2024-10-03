@@ -3,8 +3,9 @@
 
 import csv
 import os
+import queue
 import re
-import time
+import threading
 import zipfile
 from argparse import ArgumentParser
 from pathlib import Path
@@ -25,6 +26,13 @@ parser.add_argument(
     action="store_true",
     help="Flag to not extract the zipfile and use the stats/ directory instead.",
 )
+parser.add_argument(
+    "--threads",
+    type=int,
+    default=8,
+    help="Number of threads to use for processing CSV files",
+)
+
 
 # Default to localhost
 BASE_URL = "http://localhost:8000"
@@ -221,6 +229,15 @@ def is_alive(url) -> bool:
         return False
 
 
+def worker(csv_queue: queue.Queue):
+    while True:
+        csv_file = csv_queue.get()
+        if csv_file is None:
+            break
+        parse_csv(csv_file)
+        csv_queue.task_done()
+
+
 if __name__ == "__main__":
     args = parser.parse_args()
 
@@ -244,7 +261,7 @@ if __name__ == "__main__":
             zip_ref.extractall(stats_folder_path)
 
     # List all the csv files in the extracted directory.
-    csv_files = [
+    csv_file_paths = [
         (stats_folder_path / f)
         for f in os.listdir(stats_folder_path)
         if (
@@ -252,5 +269,26 @@ if __name__ == "__main__":
             and (stats_folder_path / f).suffix == ".csv"
         )
     ]
-    for csv_file in csv_files:
-        parse_csv(csv_file)
+
+    # Add the file paths to the queue
+    csv_queue = queue.Queue()
+    for csv_file_path in csv_file_paths:
+        csv_queue.put(csv_file_path)
+
+    # Create and start worker threads
+    threads = []
+    for _ in range(args.threads):
+        t = threading.Thread(target=worker, args=(csv_queue,))
+        t.start()
+        threads.append(t)
+
+    # Wait for all CSV files to be processed
+    csv_queue.join()
+
+    # Stop worker threads
+    for _ in range(args.threads):
+        csv_queue.put(None)
+    for t in threads:
+        t.join()
+
+    print("All CSV files have been processed.")
