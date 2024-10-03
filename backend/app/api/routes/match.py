@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Annotated, List
 
 from app.core.db import get_session
@@ -26,6 +27,34 @@ def create_match(
     session.commit()
     session.refresh(match)
     return match
+
+
+@router.post("/upsert", response_model=Match, include_in_schema=False)
+def upsert_referee(
+    match: Annotated[Match, AfterValidator(Match.model_validate)],
+    session: Session = Depends(get_session),
+    token: str = Depends(verify_add_token),
+):
+    # Get the existing match by season, home_team_name, away_team_name, and match_date
+    statement = select(Match).where(
+        Match.season_name == match.season_name,
+        Match.home_team_name == match.home_team_name,
+        Match.away_team_name == match.away_team_name,
+        Match.match_date == match.match_date,
+    )
+    db_match = session.exec(statement).first()
+
+    if db_match is None:
+        db_match = match
+    else:
+        # Otherwise, update the data (not the id)
+        for key, value in db_match.model_dump(exclude={"id"}).items():
+            setattr(db_match, key, value)
+
+    session.add(db_match)
+    session.commit()
+    session.refresh(db_match)
+    return db_match
 
 
 @router.get("/list", response_model=List[Match])
