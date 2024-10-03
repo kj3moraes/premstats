@@ -78,7 +78,7 @@ export default function Home() {
           </div>
           <div className='flex w-full max-w-md flex-col gap-2'>
             <SuggestionButton
-              text='Matches that Mike Dean refereed in 19/18 season'
+              text='Matches that Mike Dean refereed in 18/19 season'
               onQuery={handleQuery}
             />
             <SuggestionButton
