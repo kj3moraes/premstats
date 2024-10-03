@@ -3,16 +3,17 @@
 
 import csv
 import os
+import queue
 import re
-import time
+import threading
 import zipfile
 from argparse import ArgumentParser
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
 
 import requests
 from dotenv import load_dotenv
+from tenacity import retry, stop_after_attempt, wait_exponential
 from tqdm import tqdm
 
 parser = ArgumentParser()
@@ -25,6 +26,13 @@ parser.add_argument(
     action="store_true",
     help="Flag to not extract the zipfile and use the stats/ directory instead.",
 )
+parser.add_argument(
+    "--threads",
+    type=int,
+    default=8,
+    help="Number of threads to use for processing CSV files",
+)
+
 
 # Default to localhost
 BASE_URL = "http://localhost:8000"
@@ -36,7 +44,11 @@ def parse_float(value: str) -> float:
     return float(value) if value else None
 
 
-def get_or_create(model: str, **kwargs) -> Dict[str, Any]:
+@retry(
+    stop=stop_after_attempt(5),
+    wait=wait_exponential(multiplier=1, min=4, max=10),
+)
+def upsert(model: str, **kwargs) -> Dict[str, Any]:
     """
     Updates the specific model instance from the database if it exists. Else creates
     it in the database with retry logic to handle race conditions.
@@ -49,54 +61,26 @@ def get_or_create(model: str, **kwargs) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: The info to populate in the match model.
     """
-    max_retries = 3
-    retry_delay = 0.5  # seconds
-
-    for attempt in range(max_retries):
-        try:
-            # First, try to get the existing instance
-            response = requests.get(f"{BASE_URL}/api/{model}/list")
-            if response.status_code == 200 and response.json():
-                name: str = kwargs["name"]
-                instances = response.json()
-
-                for instance in instances:
-                    if name == instance["name"]:
-                        return instance
-
-            # If not found, try to create it
-            headers = {"Authorization": f"Bearer {ADD_ACCESS_TOKEN}"}
-            response = requests.post(
-                f"{BASE_URL}/api/{model}/add", json=kwargs, headers=headers
-            )
-            if response.status_code == 201:
-                return response.json()
-            elif response.status_code == 409:  # Assuming 409 is returned for conflicts
-                # If there's a conflict, it means the instance was created by another process
-                # Retry getting the instance
-                continue
-            else:
-                raise Exception(f"Failed to create {model}: {response.text}")
-
-        except requests.exceptions.RequestException as e:
-            if attempt == max_retries - 1:
-                raise Exception(
-                    f"Failed to get or create {model} after {max_retries} attempts: {str(e)}"
-                )
-
-        time.sleep(retry_delay)
-
-    raise Exception(f"Failed to get or create {model} after {max_retries} attempts")
+    try:
+        # Upsert the model straight away
+        headers = {"Authorization": f"Bearer {ADD_ACCESS_TOKEN}"}
+        response = requests.post(
+            f"{BASE_URL}/api/{model}/upsert", json=kwargs, headers=headers
+        )
+        if response.status_code == 201:
+            return response.json()
+        else:
+            raise Exception(f"Failed to upsert {model}: {response.text}")
+    except:
+        raise Exception(f"Failed to create {model}: {response.text}")
 
 
 def create_match(season_name, row: Dict[str, Any]):
-    season = get_or_create("season", name=season_name)
-    home_team = get_or_create("team", name=row["HomeTeam"])
-    away_team = get_or_create("team", name=row["AwayTeam"])
+    season = upsert("season", name=season_name)
+    home_team = upsert("team", name=row["HomeTeam"])
+    away_team = upsert("team", name=row["AwayTeam"])
     if "Referee" in row:
-        referee = (
-            get_or_create("referee", name=row["Referee"]) if row["Referee"] else None
-        )
+        referee = upsert("referee", name=row["Referee"]) if row["Referee"] else None
     else:
         referee = None
 
@@ -196,7 +180,9 @@ def create_match(season_name, row: Dict[str, Any]):
     }
 
     headers = {"Authorization": f"Bearer {ADD_ACCESS_TOKEN}"}
-    response = requests.post(f"{BASE_URL}/api/match/add", json=match_data, headers=headers)
+    response = requests.post(
+        f"{BASE_URL}/api/match/upsert", json=match_data, headers=headers
+    )
     if response.status_code != 201:
         raise Exception(f"Failed to create match: {response.text}")
 
@@ -243,6 +229,15 @@ def is_alive(url) -> bool:
         return False
 
 
+def worker(csv_queue: queue.Queue):
+    while True:
+        csv_file = csv_queue.get()
+        if csv_file is None:
+            break
+        parse_csv(csv_file)
+        csv_queue.task_done()
+
+
 if __name__ == "__main__":
     args = parser.parse_args()
 
@@ -266,7 +261,7 @@ if __name__ == "__main__":
             zip_ref.extractall(stats_folder_path)
 
     # List all the csv files in the extracted directory.
-    csv_files = [
+    csv_file_paths = [
         (stats_folder_path / f)
         for f in os.listdir(stats_folder_path)
         if (
@@ -274,5 +269,26 @@ if __name__ == "__main__":
             and (stats_folder_path / f).suffix == ".csv"
         )
     ]
-    for csv_file in csv_files:
-        parse_csv(csv_file)
+
+    # Add the file paths to the queue
+    csv_queue = queue.Queue()
+    for csv_file_path in csv_file_paths:
+        csv_queue.put(csv_file_path)
+
+    # Create and start worker threads
+    threads = []
+    for _ in range(args.threads):
+        t = threading.Thread(target=worker, args=(csv_queue,))
+        t.start()
+        threads.append(t)
+
+    # Wait for all CSV files to be processed
+    csv_queue.join()
+
+    # Stop worker threads
+    for _ in range(args.threads):
+        csv_queue.put(None)
+    for t in threads:
+        t.join()
+
+    print("All CSV files have been processed.")

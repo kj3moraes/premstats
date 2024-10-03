@@ -1,9 +1,11 @@
+import os
 from datetime import datetime
 from typing import List
 
 from fastapi import HTTPException
 from pydantic import BaseModel
 from sqlalchemy import Row
+from together import Together
 
 # The following prompt has 2 variables:
 # - user_question: str
@@ -18,7 +20,9 @@ Instructions:
 - first season of the premier league in our database was 1993/94
 - ignore "division" in the schema
 - the "prem" is short for the Premier League
+- when giving betting odds, only give bet365, bet_and_win, and vc_bet unless asked for a specific one
 - Use the full names of teams (Man United is Manchester United, etc.)
+- if teams ask for QPR, use "QPR" not "Queens Park Rangers"
 - recall that the current date in YYYY-MM-DD format is {current_date} 
 - when asked for a season, you must query season_name with "English Premier League YYYY/YY Season" format
 - full_time_result is either "H" (home win), "A" (away win), or "D" (draw)
@@ -130,10 +134,6 @@ class StatsRequest(BaseModel):
     message: str
 
 
-import os
-
-from together import Together
-
 client = Together(api_key=os.environ.get("TOGETHER_API_KEY"))
 
 
@@ -154,6 +154,7 @@ def get_sql(query: str):
     sql = chat_completions.choices[0].message.content
     sql = sql.replace("```sql", "")
     sql = sql.replace("```", " ")
+    print(sql)
     return sql
 
 
@@ -181,12 +182,36 @@ def get_answer(user_question: str, data):
     return response
 
 
+excluded_odds = {
+    "interwetten_home_win_odds",
+    "interwetten_draw_odds",
+    "interwetten_away_win_odds",
+    "pinnacle_home_win_odds",
+    "pinnacle_draw_odds",
+    "pinnacle_away_win_odds",
+    "william_hill_home_win_odds",
+    "william_hill_draw_odds",
+    "william_hill_away_win_odds",
+    "asian_handicap_home_win_odds",
+    "asian_handicap_draw_odds",
+    "asian_handicap_away_win_odds",
+    "bet365_over_2_5_odds",
+    "bet365_under_2_5_odds",
+    "pinnacle_over_2_5_odds",
+    "pinnacle_under_2_5_odds",
+    "max_over_2_5_odds",
+    "max_under_2_5_odds",
+    "avg_over_2_5_odds",
+    "avg_under_2_5_odds",
+}
+
+
 def convert_rows_to_essentials(results: List[Row]):
     dicts = [row._asdict() for row in results]
 
     # Remove None values and odds information
     for d in dicts:
         for k, v in list(d.items()):
-            if v is None or "odds" in k:
+            if v is None or k in excluded_odds:
                 del d[k]
     return dicts
