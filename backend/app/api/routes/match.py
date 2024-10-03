@@ -5,7 +5,7 @@ from app.core.db import get_session
 from app.core.security import verify_add_token, verify_delete_token, verify_update_token
 from app.models import Match
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import AfterValidator
+from pydantic import AfterValidator, ValidationError
 from sqlmodel import Session, select
 
 router = APIRouter()
@@ -35,17 +35,18 @@ def create_match(
     include_in_schema=False,
     status_code=status.HTTP_201_CREATED,
 )
-def upsert_referee(
-    match: Annotated[Match, AfterValidator(Match.model_validate)],
+def upsert_match(
+    match: Match,
     session: Session = Depends(get_session),
     token: str = Depends(verify_add_token),
 ):
     # Get the existing match by season, home_team_name, away_team_name, and match_date
+    date_parsed = date.fromisoformat(match.match_date)
     statement = select(Match).where(
         Match.season_name == match.season_name,
         Match.home_team_name == match.home_team_name,
         Match.away_team_name == match.away_team_name,
-        Match.match_date == match.match_date,
+        Match.match_date == date_parsed,
     )
     db_match = session.exec(statement).first()
 
@@ -53,7 +54,11 @@ def upsert_referee(
         db_match = match
     else:
         # Otherwise, update the data (not the id)
-        for key, value in db_match.model_dump(exclude={"id"}).items():
+        try:
+            match = Match.model_validate(match)
+        except ValidationError:
+            raise HTTPException(status_code=400, detail="Invalid match data")
+        for key, value in match.model_dump(exclude={"id"}).items():
             setattr(db_match, key, value)
 
     session.add(db_match)
