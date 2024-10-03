@@ -19,6 +19,7 @@ Instructions:
 - ignore "division" in the schema
 - the "prem" is short for the Premier League
 - Use the full names of teams (Man United is Manchester United, etc.)
+- if teams ask for QPR, use "QPR" not "Queens Park Rangers"
 - recall that the current date in YYYY-MM-DD format is {current_date} 
 - when asked for a season, you must query season_name with "English Premier League YYYY/YY Season" format
 - full_time_result is either "H" (home win), "A" (away win), or "D" (draw)
@@ -154,6 +155,7 @@ def get_sql(query: str):
     sql = chat_completions.choices[0].message.content
     sql = sql.replace("```sql", "")
     sql = sql.replace("```", " ")
+    print(sql)
     return sql
 
 
