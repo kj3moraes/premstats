@@ -173,7 +173,7 @@ def create_match(season_name, row: Dict[str, Any]):
 
     headers = {"Authorization": f"Bearer {ADD_ACCESS_TOKEN}"}
     response = requests.post(
-        f"{BASE_URL}/api/match/add", json=match_data, headers=headers
+        f"{BASE_URL}/api/match/upsert", json=match_data, headers=headers
     )
     if response.status_code != 201:
         raise Exception(f"Failed to create match: {response.text}")
