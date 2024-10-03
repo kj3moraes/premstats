@@ -42,6 +42,30 @@ def create_referee(
             raise e
 
 
+@router.post("/upsert", response_model=Referee, include_in_schema=False)
+def upsert_referee(
+    referee: Referee,
+    session: Session = Depends(get_session),
+    token: str = Depends(verify_add_token),
+):
+
+    # Get the existing referee by the unique name
+    statement = select(Referee).where(Referee.name == referee.name)
+    db_referee = session.exec(statement).first()
+    # If there is no referee in the database then take the whole model
+    if db_referee is None:
+        db_referee = referee
+    else:
+        # Otherwise, update the data (not the id)
+        for key, value in referee.model_dump(exclude={"id"}).items():
+            setattr(db_referee, key, value)
+
+    session.add(db_referee)
+    session.commit()
+    session.refresh(db_referee)
+    return db_referee
+
+
 @router.get("/list", response_model=List[Referee])
 def read_referees(session: Session = Depends(get_session)):
     referees = session.exec(select(Referee)).all()
@@ -67,8 +91,7 @@ def update_referee(
     if not db_referee:
         raise HTTPException(status_code=404, detail="Referee not found")
     referee_data = referee.model_dump(exclude_unset=True)
-    for key, value in referee_data.items():
-        setattr(db_referee, key, value)
+    db_referee.sqlmodel_update(referee_data)
     session.add(db_referee)
     session.commit()
     session.refresh(db_referee)

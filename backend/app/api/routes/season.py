@@ -40,6 +40,34 @@ def create_season(
             raise e
 
 
+@router.post(
+    "/upsert",
+    response_model=Season,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
+)
+def upsert_season(
+    season: Annotated[Season, AfterValidator(Season.model_validate)],
+    session: Session = Depends(get_session),
+    token: str = Depends(verify_add_token),
+):
+    # Get the existing referee by the unique name
+    statement = select(season).where(Season.name == Season.name)
+    db_season = session.exec(statement).first()
+    # If there is no season in the database then take the whole model
+    if db_season is None:
+        db_season = season
+    else:
+        # Otherwise, update the data (not the id)
+        for key, value in season.model_dump(exclude={"id"}).items():
+            setattr(db_season, key, value)
+
+    session.add(db_season)
+    session.commit()
+    session.refresh(db_season)
+    return db_season
+
+
 @router.get("/list", response_model=List[Season])
 def read_seasons(session: Session = Depends(get_session)):
     seasons = session.exec(select(Season)).all()
@@ -65,8 +93,7 @@ def update_season(
     if not db_season:
         raise HTTPException(status_code=404, detail="Season not found")
     season_data = season.model_dump(exclude_unset=True)
-    for key, value in season_data.items():
-        setattr(db_season, key, value)
+    db_season.sqlmodel_update(season_data)
     session.add(db_season)
     session.commit()
     session.refresh(db_season)

@@ -40,6 +40,34 @@ def create_team(
             raise e
 
 
+@router.post(
+    "/upsert",
+    response_model=Team,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
+)
+def upsert_team(
+    team: Annotated[Team, AfterValidator(Team.model_validate)],
+    session: Session = Depends(get_session),
+    token: str = Depends(verify_add_token),
+):
+    # Get the existing referee by the unique name
+    statement = select(team).where(Team.name == Team.name)
+    db_team = session.exec(statement).first()
+    # If there is no team in the database then take the whole model
+    if db_team is None:
+        db_team = team
+    else:
+        # Otherwise, update the data (not the id)
+        for key, value in team.model_dump(exclude={"id"}).items():
+            setattr(db_team, key, value)
+
+    session.add(db_team)
+    session.commit()
+    session.refresh(db_team)
+    return db_team
+
+
 @router.get("/list", response_model=List[Team])
 def read_teams(session: Session = Depends(get_session)):
     teams = session.exec(select(Team)).all()
@@ -65,8 +93,7 @@ def update_team(
     if not db_team:
         raise HTTPException(status_code=404, detail="Team not found")
     team_data = team.model_dump(exclude_unset=True)
-    for key, value in team_data.items():
-        setattr(db_team, key, value)
+    db_team.sqlmodel_update(team_data)
     session.add(db_team)
     session.commit()
     session.refresh(db_team)
