@@ -29,7 +29,12 @@ def create_match(
     return match
 
 
-@router.post("/upsert", response_model=Match, include_in_schema=False)
+@router.post(
+    "/upsert",
+    response_model=Match,
+    include_in_schema=False,
+    status_code=status.HTTP_201_CREATED,
+)
 def upsert_referee(
     match: Annotated[Match, AfterValidator(Match.model_validate)],
     session: Session = Depends(get_session),

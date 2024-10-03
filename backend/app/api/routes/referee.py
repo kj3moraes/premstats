@@ -42,9 +42,14 @@ def create_referee(
             raise e
 
 
-@router.post("/upsert", response_model=Referee, include_in_schema=False)
+@router.post(
+    "/upsert",
+    response_model=Referee,
+    include_in_schema=False,
+    status_code=status.HTTP_201_CREATED,
+)
 def upsert_referee(
-    referee: Referee,
+    referee: Annotated[Referee, AfterValidator(Referee.model_validate)],
     session: Session = Depends(get_session),
     token: str = Depends(verify_add_token),
 ):

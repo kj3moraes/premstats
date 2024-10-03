@@ -43,8 +43,8 @@ def create_season(
 @router.post(
     "/upsert",
     response_model=Season,
-    status_code=status.HTTP_201_CREATED,
     include_in_schema=False,
+    status_code=status.HTTP_201_CREATED,
 )
 def upsert_season(
     season: Annotated[Season, AfterValidator(Season.model_validate)],
