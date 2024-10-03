@@ -52,7 +52,7 @@ def upsert_season(
     token: str = Depends(verify_add_token),
 ):
     # Get the existing referee by the unique name
-    statement = select(season).where(Season.name == Season.name)
+    statement = select(Season).where(Season.name == season.name)
     db_season = session.exec(statement).first()
     # If there is no season in the database then take the whole model
     if db_season is None:

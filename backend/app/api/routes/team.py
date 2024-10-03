@@ -43,8 +43,8 @@ def create_team(
 @router.post(
     "/upsert",
     response_model=Team,
-    status_code=status.HTTP_201_CREATED,
     include_in_schema=False,
+    status_code=status.HTTP_201_CREATED,
 )
 def upsert_team(
     team: Annotated[Team, AfterValidator(Team.model_validate)],
@@ -52,7 +52,7 @@ def upsert_team(
     token: str = Depends(verify_add_token),
 ):
     # Get the existing referee by the unique name
-    statement = select(team).where(Team.name == Team.name)
+    statement = select(Team).where(Team.name == team.name)
     db_team = session.exec(statement).first()
     # If there is no team in the database then take the whole model
     if db_team is None:
