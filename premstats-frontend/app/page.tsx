@@ -110,7 +110,7 @@ export default function Home() {
             response && (
               <>
                 <p>{(response as SuccessResponse).message}</p>
-                <MoreInfoButton responseData={JSON.stringify(response)} />
+                <MoreInfoButton responseData={(response as SuccessResponse)} />
               </>
             )
           )}
