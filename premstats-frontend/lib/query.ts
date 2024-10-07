@@ -2,19 +2,21 @@ interface BackendRequest {
   message: string;
 }
 
-interface SuccessResponse {
+export interface SuccessResponse {
   message: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Array<{ [key: string]: any }> | number | string;
 }
 
-interface ErrorResponse {
+export interface ErrorResponse {
   detail: string;
 }
 
-type BackendResponse = SuccessResponse | ErrorResponse;
+export type BackendResponse = SuccessResponse | ErrorResponse;
 
-export const query_backend = async (query: string): Promise<string> => {
+export const query_backend = async (
+  query: string
+): Promise<BackendResponse> => {
   // Construct the search request body
   const requestBody: BackendRequest = {
     message: query,
@@ -44,7 +46,7 @@ export const query_backend = async (query: string): Promise<string> => {
   }
 
   if ('message' in jsonResponse) {
-    return jsonResponse.message;
+    return jsonResponse;
   } else {
     throw new Error(jsonResponse.detail);
   }

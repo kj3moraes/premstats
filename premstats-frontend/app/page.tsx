@@ -7,18 +7,19 @@ import { FaFutbol } from 'react-icons/fa';
 import { query_backend } from '@/lib/query';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
+import type { BackendResponse, SuccessResponse } from '@/lib/query';
 import SuggestionButton from '@/components/suggestion-button';
 import DataDictionaryButton from '@/components/info-button';
 
 export default function Home() {
-  const [response, setResponse] = useState<string>('');
+  const [response, setResponse] = useState<BackendResponse>();
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleQuery = async (queryText: string) => {
     setIsLoading(true);
-    setResponse('');
+    setResponse({ message: 'Loading...', data: [] });
     setQuery(queryText);
 
     console.log('Querying backend with:', queryText);
@@ -32,7 +33,7 @@ export default function Home() {
         title: 'Error!',
         description: (error as Error).message,
       });
-      setResponse('');
+      setResponse({ message: 'Error!', data: [] });
     } finally {
       setIsLoading(false);
     }
@@ -101,8 +102,8 @@ export default function Home() {
         </div>
         {/* Right side */}
         <div className='rounded-lg p-4 md:w-1/2'>
-          {response && <p>{response}</p>}
-          {response && <DataDictionaryButton responseData={response} />}
+          {response && <p>{(response as SuccessResponse).message}</p>}
+          {response && <DataDictionaryButton responseData={JSON.stringify(response)} />}
           {isLoading && (
             <div className='flex items-center justify-center'>
               <div className='h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-gray-900'></div>
