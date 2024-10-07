@@ -44,6 +44,9 @@ def get_stats(request: StatsRequest, session: Session = Depends(get_session)):
 
     data = [result._asdict() for result in results]
     answer_dicts = convert_rows_to_essentials(results)
-    answer = get_answer(user_question, answer_dicts)
+    # If the answer dictionary is
+    if len(answer_dicts) > 4:
+        return {"message": "Refer to the modal for your respons", "data": answer_dicts}
 
+    answer = get_answer(user_question, answer_dicts)
     return {"message": answer, "data": data}

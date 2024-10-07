@@ -20,11 +20,11 @@ Instructions:
 - first season of the premier league in our database was 1993/94
 - ignore "division" in the schema
 - the "prem" is short for the Premier League
-- when giving betting odds, only give bet365, bet_and_win, and vc_bet unless asked for a specific one
 - Use the full names of teams (Man United is Manchester United, etc.)
 - if teams ask for QPR, use "QPR" not "Queens Park Rangers"
 - recall that the current date in YYYY-MM-DD format is {current_date} 
 - when asked for a season, you must query season_name with "English Premier League YYYY/YY Season" format
+- in every query add the match_date, home_team_name, away_team_name
 - full_time_result is either "H" (home win), "A" (away win), or "D" (draw)
 - half_time_result is either "H" (home win), "A" (away win), or "D" (draw)
 
