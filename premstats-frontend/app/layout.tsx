@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import clsx from 'clsx';
 import { Noto_Sans } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
+import Footer from '@/components/footer';
 import './globals.css';
 
 const notosans = Noto_Sans({
@@ -25,6 +26,7 @@ export default function RootLayout({
     <html lang='en' className={clsx(notosans.variable)}>
       <body className={`antialiased`}>
         {children}
+        <Footer />
         <Analytics />
       </body>
     </html>
