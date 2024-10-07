@@ -106,7 +106,7 @@ export default function Home() {
               <div className='h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-gray-900'></div>
             </div>
           ) : (
-            response &&  (
+            response && (
               <>
                 <div className='space-y-2'>
                   <p>{(response as SuccessResponse).message}</p>
