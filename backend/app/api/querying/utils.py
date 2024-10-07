@@ -126,7 +126,7 @@ ANSWER_BOT_USER_PROMPT = """
 This is the original question {user_question}
 And this is the query result as a list dictionaries {match_data}.
 
-Frame an answer to the question and return the response Markdown.
+Frame an answer to the question and return the response in CommanMark Markdown.
 """
 
 
