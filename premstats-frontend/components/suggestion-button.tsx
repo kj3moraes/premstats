@@ -1,4 +1,3 @@
-// SuggestionButton.tsx
 import { Button } from '@/components/ui/button';
 import { Lightbulb } from 'lucide-react';
 
