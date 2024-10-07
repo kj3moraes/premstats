@@ -16,10 +16,7 @@ const DataDictionaryButton: React.FC<DataDictionaryButtonProps> = ({
 
   return (
     <div>
-      <Button
-        onClick={handleToggle}
-        className='rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-700'
-      >
+      <Button variant='accent' onClick={handleToggle}>
         {showDictionary ? 'Hide Data Dictionary' : 'Show Data Dictionary'}
       </Button>
       {showDictionary && (

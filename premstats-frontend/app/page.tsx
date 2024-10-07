@@ -12,14 +12,14 @@ import SuggestionButton from '@/components/suggestion-button';
 import DataDictionaryButton from '@/components/info-button';
 
 export default function Home() {
-  const [response, setResponse] = useState<BackendResponse>();
+  const [response, setResponse] = useState<BackendResponse | null>(null); // Initialize as null to avoid showing text
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleQuery = async (queryText: string) => {
     setIsLoading(true);
-    setResponse({ message: 'Loading...', data: [] });
+    setResponse(null); // Clear the response to avoid displaying old data
     setQuery(queryText);
 
     console.log('Querying backend with:', queryText);
@@ -102,12 +102,17 @@ export default function Home() {
         </div>
         {/* Right side */}
         <div className='rounded-lg p-4 md:w-1/2'>
-          {response && <p>{(response as SuccessResponse).message}</p>}
-          {response && <DataDictionaryButton responseData={JSON.stringify(response)} />}
-          {isLoading && (
+          {isLoading ? (
             <div className='flex items-center justify-center'>
               <div className='h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-gray-900'></div>
             </div>
+          ) : (
+            response && (
+              <>
+                <p>{(response as SuccessResponse).message}</p>
+                <DataDictionaryButton responseData={JSON.stringify(response)} />
+              </>
+            )
           )}
         </div>
       </div>
