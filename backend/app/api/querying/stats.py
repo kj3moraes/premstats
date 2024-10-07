@@ -1,3 +1,5 @@
+import json
+
 from app.api.querying.utils import (
     StatsRequest,
     convert_rows_to_essentials,
@@ -44,6 +46,11 @@ def get_stats(request: StatsRequest, session: Session = Depends(get_session)):
 
     data = [result._asdict() for result in results]
     answer_dicts = convert_rows_to_essentials(results)
-    answer = get_answer(user_question, answer_dicts)
+    # If the answer dictionary is
+    answer_dict_string = json.dumps(answer_dicts, default=str)
+    print(len(answer_dict_string))
+    if len(answer_dict_string) > 600:
+        return {"message": "Click the button to get all the data.", "data": answer_dicts}
 
+    answer = get_answer(user_question, answer_dicts)
     return {"message": answer, "data": data}

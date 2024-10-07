@@ -1,4 +1,3 @@
-// Home.tsx
 'use client';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -7,17 +6,20 @@ import { FaFutbol } from 'react-icons/fa';
 import { query_backend } from '@/lib/query';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
+import type { BackendResponse, SuccessResponse } from '@/lib/query';
 import SuggestionButton from '@/components/suggestion-button';
+import MoreInfoButton from '@/components/info-button';
+import ReactMarkdown from 'react-markdown';
 
 export default function Home() {
-  const [response, setResponse] = useState<string>('');
+  const [response, setResponse] = useState<BackendResponse | null>(null); // Initialize as null to avoid showing text
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleQuery = async (queryText: string) => {
     setIsLoading(true);
-    setResponse('');
+    setResponse(null); // Clear the response to avoid displaying old data
     setQuery(queryText);
 
     console.log('Querying backend with:', queryText);
@@ -31,7 +33,7 @@ export default function Home() {
         title: 'Error!',
         description: (error as Error).message,
       });
-      setResponse('');
+      setResponse(null);
     } finally {
       setIsLoading(false);
     }
@@ -45,7 +47,7 @@ export default function Home() {
   };
 
   return (
-    <div className='flex min-h-screen items-center justify-center bg-background p-4 md:p-8'>
+    <div className='flex items-center justify-center bg-background p-4 md:p-8'>
       <div className='flex w-full max-w-6xl flex-col md:flex-row md:items-center md:justify-between'>
         {/* Left Side */}
         <div className='mb-8 flex flex-col items-center gap-2 md:mb-0 md:w-1/2 md:items-start'>
@@ -100,11 +102,21 @@ export default function Home() {
         </div>
         {/* Right side */}
         <div className='rounded-lg p-4 md:w-1/2'>
-          {response && <p>{response}</p>}
-          {isLoading && (
+          {isLoading ? (
             <div className='flex items-center justify-center'>
               <div className='h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-gray-900'></div>
             </div>
+          ) : (
+            response && (
+              <>
+                <div className='space-y-2'>
+                  <ReactMarkdown>
+                    {(response as SuccessResponse).message}
+                  </ReactMarkdown>
+                  <MoreInfoButton responseData={response as SuccessResponse} />
+                </div>
+              </>
+            )
           )}
         </div>
       </div>

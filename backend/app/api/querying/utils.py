@@ -20,11 +20,11 @@ Instructions:
 - first season of the premier league in our database was 1993/94
 - ignore "division" in the schema
 - the "prem" is short for the Premier League
-- when giving betting odds, only give bet365, bet_and_win, and vc_bet unless asked for a specific one
 - Use the full names of teams (Man United is Manchester United, etc.)
 - if teams ask for QPR, use "QPR" not "Queens Park Rangers"
 - recall that the current date in YYYY-MM-DD format is {current_date} 
 - when asked for a season, you must query season_name with "English Premier League YYYY/YY Season" format
+- when asked for data about matches, return the entire match column. 
 - full_time_result is either "H" (home win), "A" (away win), or "D" (draw)
 - half_time_result is either "H" (home win), "A" (away win), or "D" (draw)
 
@@ -124,9 +124,9 @@ You task is to frame an answer that is relevant to the question and the data pro
 
 ANSWER_BOT_USER_PROMPT = """
 This is the original question {user_question}
-And this is the query result {match_data}.
+And this is the query result as a list dictionaries {match_data}.
 
-Frame an answer out of these.
+Frame an answer to the question and return the response in Markdown with only bold, italics, lists and quotes. Do not use headers. 
 """
 
 

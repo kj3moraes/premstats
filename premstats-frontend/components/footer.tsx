@@ -2,12 +2,17 @@ import React from 'react';
 
 const Footer = () => {
   return (
-    <footer className='w-full border-t border-border bg-background py-4'>
-      <div className='container mx-auto'>
+    <footer className='w-full border-t border-border py-4'>
+      <div className='mr-5'>
         <div className='flex justify-end'>
           <p className='text-sm text-muted-foreground'>
             made with ❤️ by{' '}
-            <a href='https://itskeane.info' target='_blank' rel='noreferrer'>
+            <a
+              className='underline'
+              href='https://itskeane.info'
+              target='_blank'
+              rel='noreferrer'
+            >
               Keane
             </a>
           </p>
