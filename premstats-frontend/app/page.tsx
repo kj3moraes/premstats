@@ -8,6 +8,7 @@ import { query_backend } from '@/lib/query';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 import SuggestionButton from '@/components/suggestion-button';
+import DataDictionaryButton from '@/components/info-button';
 
 export default function Home() {
   const [response, setResponse] = useState<string>('');
@@ -101,6 +102,7 @@ export default function Home() {
         {/* Right side */}
         <div className='rounded-lg p-4 md:w-1/2'>
           {response && <p>{response}</p>}
+          {response && <DataDictionaryButton responseData={response} />}
           {isLoading && (
             <div className='flex items-center justify-center'>
               <div className='h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-gray-900'></div>
