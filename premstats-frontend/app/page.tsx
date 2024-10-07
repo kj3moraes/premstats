@@ -109,10 +109,10 @@ export default function Home() {
           ) : (
             response && (
               <>
-              <div className='space-y-2'>
-                <p>{(response as SuccessResponse).message}</p>
-                <MoreInfoButton responseData={response as SuccessResponse} />
-              </div>
+                <div className='space-y-2'>
+                  <p>{(response as SuccessResponse).message}</p>
+                  <MoreInfoButton responseData={response as SuccessResponse} />
+                </div>
               </>
             )
           )}
