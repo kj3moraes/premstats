@@ -46,7 +46,7 @@ export default function Home() {
   };
 
   return (
-    <div className='flex min-h-screen items-center justify-center bg-background p-4 md:p-8'>
+    <div className='flex items-center justify-center bg-background p-4 md:p-8'>
       <div className='flex w-full max-w-6xl flex-col md:flex-row md:items-center md:justify-between'>
         {/* Left Side */}
         <div className='mb-8 flex flex-col items-center gap-2 md:mb-0 md:w-1/2 md:items-start'>

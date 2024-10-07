@@ -25,8 +25,12 @@ export default function RootLayout({
   return (
     <html lang='en' className={clsx(notosans.variable)}>
       <body className={`antialiased`}>
-        {children}
-        <Footer />
+        <div className='flex min-h-screen flex-col'>
+          <div className='flex flex-1 flex-col justify-center'>{children}</div>
+          <div>
+            <Footer />
+          </div>
+        </div>
         <Analytics />
       </body>
     </html>
