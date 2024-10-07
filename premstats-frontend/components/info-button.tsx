@@ -31,9 +31,9 @@ export default function MoreInfoButton({ responseData }: MoreInfoButtonProps) {
         </SheetTrigger>
         <SheetContent
           side={window.innerWidth >= 768 ? 'right' : 'bottom'}
-          className='xl:w-1/3 xl:max-w-none sm:w-1/2 sm:max-w-none'
+          className='xl:w-1/3 xl:max-w-none sm:w-1/2 sm:max-w-none flex flex-col'
         >
-          <div className='overflow-auto'>
+          <div className='overflow-y-auto'>
             <SheetHeader>
               <SheetTitle>All the data</SheetTitle>
               <SheetDescription>
@@ -60,7 +60,7 @@ export default function MoreInfoButton({ responseData }: MoreInfoButtonProps) {
                         >
                           {Object.values(item).map((value, i) => (
                             <td key={i} className='border px-4 py-2'>
-                              {value}
+                              {value as React.ReactNode}
                             </td>
                           ))}
                         </tr>

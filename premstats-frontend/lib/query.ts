@@ -5,7 +5,7 @@ interface BackendRequest {
 export interface SuccessResponse {
   message: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: Array<{ [key: string]: any }> | number | string;
+  data: Array<{ [key: string]: any }>;
 }
 
 export interface ErrorResponse {
