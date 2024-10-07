@@ -24,7 +24,7 @@ Instructions:
 - if teams ask for QPR, use "QPR" not "Queens Park Rangers"
 - recall that the current date in YYYY-MM-DD format is {current_date} 
 - when asked for a season, you must query season_name with "English Premier League YYYY/YY Season" format
-- in every query add the match_date, home_team_name, away_team_name
+- when asked for data about matches, return the entire match column. 
 - full_time_result is either "H" (home win), "A" (away win), or "D" (draw)
 - half_time_result is either "H" (home win), "A" (away win), or "D" (draw)
 
@@ -126,7 +126,7 @@ ANSWER_BOT_USER_PROMPT = """
 This is the original question {user_question}
 And this is the query result as a list dictionaries {match_data}.
 
-Frame an answer to the question and return the response in CommanMark Markdown.
+Frame an answer to the question and return the response in Markdown with only bold, italics, lists and quotes. Do not use headers. 
 """
 
 

@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { BackendResponse, SuccessResponse } from '@/lib/query';
 import SuggestionButton from '@/components/suggestion-button';
 import MoreInfoButton from '@/components/info-button';
+import ReactMarkdown from 'react-markdown'
 
 export default function Home() {
   const [response, setResponse] = useState<BackendResponse | null>(null); // Initialize as null to avoid showing text
@@ -109,7 +110,7 @@ export default function Home() {
             response && (
               <>
                 <div className='space-y-2'>
-                  <p>{(response as SuccessResponse).message}</p>
+                  <ReactMarkdown>{(response as SuccessResponse).message}</ReactMarkdown>
                   <MoreInfoButton responseData={response as SuccessResponse} />
                 </div>
               </>
