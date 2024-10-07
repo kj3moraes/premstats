@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
-interface DataDictionaryButtonProps {
+interface MoreInfoButtonProps {
   responseData: string;
 }
 
-const DataDictionaryButton: React.FC<DataDictionaryButtonProps> = ({
+export default function MoreInfoButton({
   responseData,
-}) => {
+}: MoreInfoButtonProps) {
   const [showDictionary, setShowDictionary] = useState(false);
 
   const handleToggle = () => {
@@ -17,7 +17,7 @@ const DataDictionaryButton: React.FC<DataDictionaryButtonProps> = ({
   return (
     <div>
       <Button variant='accent' onClick={handleToggle}>
-        {showDictionary ? 'Hide Data Dictionary' : 'Show Data Dictionary'}
+        {showDictionary ? 'Hide' : 'Show full data'}
       </Button>
       {showDictionary && (
         <div className='mt-4 rounded border bg-gray-50 p-4'>
@@ -31,4 +31,3 @@ const DataDictionaryButton: React.FC<DataDictionaryButtonProps> = ({
   );
 };
 
-export default DataDictionaryButton;

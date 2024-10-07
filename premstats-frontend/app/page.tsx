@@ -9,7 +9,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 import type { BackendResponse, SuccessResponse } from '@/lib/query';
 import SuggestionButton from '@/components/suggestion-button';
-import DataDictionaryButton from '@/components/info-button';
+import MoreInfoButton from '@/components/info-button';
 
 export default function Home() {
   const [response, setResponse] = useState<BackendResponse | null>(null); // Initialize as null to avoid showing text
@@ -110,7 +110,7 @@ export default function Home() {
             response && (
               <>
                 <p>{(response as SuccessResponse).message}</p>
-                <DataDictionaryButton responseData={JSON.stringify(response)} />
+                <MoreInfoButton responseData={JSON.stringify(response)} />
               </>
             )
           )}
