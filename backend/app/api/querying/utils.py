@@ -124,9 +124,9 @@ You task is to frame an answer that is relevant to the question and the data pro
 
 ANSWER_BOT_USER_PROMPT = """
 This is the original question {user_question}
-And this is the query result {match_data}.
+And this is the query result as a list dictionaries {match_data}.
 
-Frame an answer out of these.
+Frame an answer to the question and return the response Markdown.
 """
 
 
