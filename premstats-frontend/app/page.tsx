@@ -1,7 +1,7 @@
 'use client';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FaFutbol } from 'react-icons/fa';
 import { query_backend } from '@/lib/query';
 import { Toaster } from '@/components/ui/toaster';
