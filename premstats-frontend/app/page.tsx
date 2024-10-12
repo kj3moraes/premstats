@@ -110,7 +110,7 @@ export default function Home() {
         <div className='rounded-lg p-4 md:w-1/2'>
           {isLoading ? (
             <div className='flex items-center justify-center'>
-              <div className='h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-gray-900'></div>
+              <FaFutbol className='text-4xl animate-big-bounce text-primary' />
             </div>
           ) : (
             response && (
