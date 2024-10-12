@@ -75,3 +75,17 @@
     @apply text-4xl font-bold;
   }
 }
+
+@keyframes big-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-50px);
+  }
+}
+
+.animate-big-bounce {
+  animation: big-bounce 1s infinite;
+}

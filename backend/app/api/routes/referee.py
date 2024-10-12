@@ -2,8 +2,9 @@ from typing import Annotated, List
 
 from app.core.db import get_session
 from app.core.security import verify_add_token, verify_delete_token, verify_update_token
-from app.models import Referee
+from app.models import Referee, RefereeFilter
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_filter import FilterDepends
 from pydantic import AfterValidator
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
@@ -72,8 +73,14 @@ def upsert_referee(
 
 
 @router.get("/list", response_model=List[Referee])
-def read_referees(session: Session = Depends(get_session)):
-    referees = session.exec(select(Referee)).all()
+def read_referees(
+    referee_filter: RefereeFilter = FilterDepends(RefereeFilter),
+    session: Session = Depends(get_session),
+):
+    query = select(Referee)
+    query = referee_filter.filter(query)
+    query = referee_filter.sort(query)
+    referees = session.exec(query).all()
     return referees
 
 

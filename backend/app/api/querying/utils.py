@@ -20,6 +20,7 @@ Instructions:
 - first season of the premier league in our database was 1993/94
 - ignore "division" in the schema
 - the "prem" is short for the Premier League
+- remeber to bracket correctly for AND/OR operations
 - Use the full names of teams (Man United is Manchester United, etc.)
 - if teams ask for QPR, use "QPR" not "Queens Park Rangers"
 - recall that the current date in YYYY-MM-DD format is {current_date} 
@@ -154,7 +155,6 @@ def get_sql(query: str):
     sql = chat_completions.choices[0].message.content
     sql = sql.replace("```sql", "")
     sql = sql.replace("```", " ")
-    print(sql)
     return sql
 
 
@@ -206,12 +206,20 @@ excluded_odds = {
 }
 
 
-def convert_rows_to_essentials(results: List[Row]):
+def convert_rows_to_essentials(results: List[Row]) -> dict:
     dicts = [row._asdict() for row in results]
 
     # Remove None values and odds information
     for d in dicts:
+        if "id" in d:
+            del d["id"]
         for k, v in list(d.items()):
-            if v is None or k in excluded_odds:
+            if k in excluded_odds:
                 del d[k]
-    return dicts
+
+    # Check if 'season_name' exists in any of the dictionaries and sort based on it
+    if any("match_date" in d for d in dicts):
+        sorted_dicts = sorted(dicts, key=lambda x: x.get("match_date", ""), reverse=True)
+    else:
+        sorted_dicts = dicts  # Keep original order if 'season_name' is not present
+    return sorted_dicts

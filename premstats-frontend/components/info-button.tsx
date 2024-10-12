@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { SuccessResponse } from '@/lib/query';
 import {
@@ -15,23 +14,15 @@ interface MoreInfoButtonProps {
 }
 
 export default function MoreInfoButton({ responseData }: MoreInfoButtonProps) {
-  const [showDictionary, setShowDictionary] = useState(false);
-
-  const handleToggle = () => {
-    setShowDictionary(!showDictionary);
-  };
-
   return (
     <div>
       <Sheet>
         <SheetTrigger>
-          <Button variant='accent' onClick={handleToggle}>
-            Show full data
-          </Button>
+          <Button variant='accent'>Show full data</Button>
         </SheetTrigger>
         <SheetContent
           side={window.innerWidth >= 768 ? 'right' : 'bottom'}
-          className='flex flex-col sm:w-1/2 sm:max-w-none xl:w-1/3 xl:max-w-none'
+          className='flex flex-col sm:w-1/2 sm:max-w-none xl:w-5/12 xl:max-w-none'
         >
           <div className='overflow-y-auto'>
             <SheetHeader>
