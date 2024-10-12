@@ -1,6 +1,7 @@
 from datetime import date
 from typing import Annotated, List
 
+from app.core.config import settings
 from app.core.db import get_session
 from app.core.security import verify_add_token, verify_delete_token, verify_update_token
 from app.models import Match
@@ -16,7 +17,7 @@ router = APIRouter()
     "/add",
     response_model=Match,
     status_code=status.HTTP_201_CREATED,
-    include_in_schema=False,
+    include_in_schema=(settings.ENVIRONMENT == "local"),
 )
 def create_match(
     match: Match,
@@ -32,7 +33,7 @@ def create_match(
 @router.post(
     "/upsert",
     response_model=Match,
-    include_in_schema=False,
+    include_in_schema=(settings.ENVIRONMENT == "local"),
     status_code=status.HTTP_201_CREATED,
 )
 def upsert_match(
@@ -83,7 +84,11 @@ def read_match(match_id: int, session: Session = Depends(get_session)):
     return match
 
 
-@router.put("/update/{match_id}", response_model=Match, include_in_schema=False)
+@router.put(
+    "/update/{match_id}",
+    response_model=Match,
+    include_in_schema=(settings.ENVIRONMENT == "local"),
+)
 def update_match(
     match_id: int,
     match: Annotated[Match, AfterValidator(Match.model_validate)],
@@ -104,7 +109,7 @@ def update_match(
 @router.delete(
     "/delete/{match_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    include_in_schema=False,
+    include_in_schema=(settings.ENVIRONMENT == "local"),
 )
 def delete_match(
     match_id: int,
