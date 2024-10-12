@@ -211,7 +211,8 @@ def convert_rows_to_essentials(results: List[Row]) -> dict:
 
     # Remove None values and odds information
     for d in dicts:
-        del d["id"]
+        if "id" in d:
+            del d["id"]
         for k, v in list(d.items()):
             if k in excluded_odds:
                 del d[k]
