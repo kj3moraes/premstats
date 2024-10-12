@@ -2,8 +2,9 @@ from typing import Annotated, List
 
 from app.core.db import get_session
 from app.core.security import verify_add_token, verify_delete_token, verify_update_token
-from app.models import Season
+from app.models import Season, SeasonFilter
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_filter import FilterDepends, with_prefix
 from pydantic import AfterValidator
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
@@ -69,8 +70,14 @@ def upsert_season(
 
 
 @router.get("/list", response_model=List[Season])
-def read_seasons(session: Session = Depends(get_session)):
-    seasons = session.exec(select(Season)).all()
+def read_seasons(
+    season_filter: SeasonFilter = FilterDepends(SeasonFilter),
+    session: Session = Depends(get_session),
+):
+    query = select(Season)
+    query = season_filter.filter(query)
+    query = season_filter.sort(query)
+    seasons = session.exec(query).all()
     return seasons
 
 

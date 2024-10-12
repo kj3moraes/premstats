@@ -1,6 +1,8 @@
 from datetime import date, time
 from typing import List, Optional
 
+from fastapi_filter import FilterDepends, with_prefix
+from fastapi_filter.contrib.sqlalchemy import Filter
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -13,6 +15,17 @@ class Season(SQLModel, table=True):
     name: str = Field(index=True, unique=True, description="Season years")
 
     matches: List["Match"] = Relationship(back_populates="season")
+
+
+class SeasonFilter(Filter):
+    name: Optional[str] = None
+    name__ilike: Optional[str] = None
+    order_by: list[str] = ["name"]
+    search: Optional[str] = None
+
+    class Constants(Filter.Constants):
+        model = Season
+        search_model_fields = ["name"]
 
 
 class Team(SQLModel, table=True):
@@ -34,6 +47,17 @@ class Team(SQLModel, table=True):
     )
 
 
+class TeamFilter(Filter):
+    name: Optional[str] = None
+    name__ilike: Optional[str] = None
+    order_by: list[str] = ["name"]
+    search: Optional[str] = None
+
+    class Constants(Filter.Constants):
+        model = Team
+        search_model_fields = ["name"]
+
+
 class Referee(SQLModel, table=True):
     """
     Represents a match referee.
@@ -44,6 +68,17 @@ class Referee(SQLModel, table=True):
 
     # Relationships
     matches: List["Match"] = Relationship(back_populates="referee")
+
+
+class RefereeFilter(Filter):
+    name: Optional[str] = None
+    name__ilike: Optional[str] = None
+    order_by: list[str] = ["name"]
+    search: Optional[str] = None
+
+    class Constants(Filter.Constants):
+        model = Referee
+        search_model_fields = ["name"]
 
 
 class Match(SQLModel, table=True):
@@ -250,3 +285,23 @@ class Match(SQLModel, table=True):
     avg_asian_handicap_away_odds: Optional[float] = Field(
         default=None, description="Market Average Asian Handicap Away Team Odds"
     )
+
+
+class MatchFilter(Filter):
+    season_name: Optional[str] = None
+    division: Optional[str] = None
+    match_date: Optional[date] = None
+    match_date__gte: Optional[date] = None
+    match_date__lte: Optional[date] = None
+    home_team_name: Optional[str] = None
+    away_team_name: Optional[str] = None
+    referee_name: Optional[RefereeFilter] = FilterDepends(
+        with_prefix("referee", RefereeFilter)
+    )
+    full_time_result: Optional[str] = None
+    order_by: list[str] = ["match_date", "match_time"]
+    search: Optional[str] = None
+
+    class Constants(Filter.Constants):
+        model = Match
+        search_model_fields = ["home_team_name", "away_team_name", "referee_name"]

@@ -4,8 +4,9 @@ from typing import Annotated, List
 from app.core.config import settings
 from app.core.db import get_session
 from app.core.security import verify_add_token, verify_delete_token, verify_update_token
-from app.models import Match
+from app.models import Match, MatchFilter, Referee
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_filter import FilterDepends
 from pydantic import AfterValidator, ValidationError
 from sqlmodel import Session, select
 
@@ -70,9 +71,15 @@ def upsert_match(
 
 @router.get("/list", response_model=List[Match])
 def read_matches(
-    skip: int = 0, limit: int = 100, session: Session = Depends(get_session)
+    skip: int = 0,
+    limit: int = 100,
+    match_filter: MatchFilter = FilterDepends(MatchFilter),
+    session: Session = Depends(get_session),
 ):
-    matches = session.exec(select(Match).offset(skip).limit(limit)).all()
+    query = select(Match).outerjoin(Referee)
+    query = match_filter.filter(query)
+    query = match_filter.sort(query)
+    matches = session.exec(query.offset(skip).limit(limit)).all()
     return matches
 
 
