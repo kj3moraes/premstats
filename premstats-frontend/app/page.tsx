@@ -1,7 +1,7 @@
 'use client';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaFutbol } from 'react-icons/fa';
 import { query_backend } from '@/lib/query';
 import { Toaster } from '@/components/ui/toaster';
@@ -11,22 +11,30 @@ import SuggestionButton from '@/components/suggestion-button';
 import SubmitButton from '@/components/submit-button';
 import MoreInfoButton from '@/components/info-button';
 import ReactMarkdown from 'react-markdown';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function Home() {
-  const [response, setResponse] = useState<BackendResponse | null>(null); // Initialize as null to avoid showing text
+  const [response, setResponse] = useState<BackendResponse | null>(null);
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [queryHistory, setQueryHistory] = useState<string[]>([]);
   const { toast } = useToast();
 
   const handleQuery = async (queryText: string) => {
     setIsLoading(true);
-    setResponse(null); // Clear the response to avoid displaying old data
+    setResponse(null);
     setQuery(queryText);
 
     console.log('Querying backend with:', queryText);
     try {
       const response = await query_backend(queryText);
       setResponse(response);
+      updateQueryHistory(queryText);
     } catch (error) {
       console.error('Error querying backend:', error);
       toast({
@@ -40,6 +48,11 @@ export default function Home() {
     }
   };
 
+  const updateQueryHistory = (newQuery: string) => {
+    const updatedHistory = [newQuery, ...queryHistory.slice(0, 9)];
+    setQueryHistory(updatedHistory);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
@@ -47,11 +60,9 @@ export default function Home() {
     setQuery('');
   };
 
-
-
   return (
     <div className='flex items-center justify-center bg-background p-4 md:p-8'>
-      <div className='flex w-full max-w-6xl flex-col md:flex-row md:items-center md:justify-between'>
+      <div className='flex w-full max-w-6xl flex-col md:flex-row md:items-start md:justify-between'>
         {/* Left Side */}
         <div className='mb-8 flex flex-col items-center gap-2 md:mb-0 md:w-1/2 md:items-start'>
           <div className='flex flex-row items-center justify-center gap-4'>
@@ -105,6 +116,21 @@ export default function Home() {
               </AlertDescription>
             </Alert>
           </div>
+          {/* Query History Accordion */}
+          {queryHistory.length > 0 && (<Accordion type="single" collapsible className="w-full max-w-md mt-4">
+            <AccordionItem value="item-1">
+              <AccordionTrigger className='text-xl font-semibold'>Previous Queries</AccordionTrigger>
+              <AccordionContent>
+                <ul className="space-y-2">
+                  {queryHistory.map((historyQuery, index) => (
+                    <li key={index} className="cursor-pointer hover:bg-accent" onClick={() => handleQuery(historyQuery)}>
+                      {historyQuery}
+                    </li>
+                  ))}
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>)}
         </div>
         {/* Right side */}
         <div className='rounded-lg p-4 md:w-1/2'>
