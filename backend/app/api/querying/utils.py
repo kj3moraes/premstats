@@ -217,4 +217,9 @@ def convert_rows_to_essentials(results: List[Row]) -> dict:
             if k in excluded_odds:
                 del d[k]
 
-    return dicts
+    # Check if 'season_name' exists in any of the dictionaries and sort based on it
+    if any("season_name" in d for d in dicts):
+        sorted_dicts = sorted(dicts, key=lambda x: x.get("season_name", ""), reverse=True)
+    else:
+        sorted_dicts = dicts  # Keep original order if 'season_name' is not present
+    return sorted_dicts
