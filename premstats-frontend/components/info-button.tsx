@@ -18,9 +18,7 @@ export default function MoreInfoButton({ responseData }: MoreInfoButtonProps) {
     <div>
       <Sheet>
         <SheetTrigger>
-          <Button variant='accent'>
-            Show full data
-          </Button>
+          <Button variant='accent'>Show full data</Button>
         </SheetTrigger>
         <SheetContent
           side={window.innerWidth >= 768 ? 'right' : 'bottom'}

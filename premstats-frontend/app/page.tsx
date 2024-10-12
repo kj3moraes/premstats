@@ -16,7 +16,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from '@/components/ui/accordion';
 
 export default function Home() {
   const [response, setResponse] = useState<BackendResponse | null>(null);
@@ -70,11 +70,11 @@ export default function Home() {
             <h1 className='mb-4 text-center md:text-left'>premstats.xyz</h1>
           </div>
           <form onSubmit={handleSubmit} className='w-full max-w-md'>
-            <div className='flex mb-2'>
+            <div className='mb-2 flex'>
               <Input
                 type='text'
                 placeholder='Ask about any match or team stats...'
-                className='flex-grow mr-2'
+                className='mr-2 flex-grow'
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -112,31 +112,47 @@ export default function Home() {
               </AlertTitle>
               <AlertDescription>
                 This site is in beta mode and may not be fully functional.
-                Please report any issues to the <a className="underline" href='mailto:keanejonathan3@gmail.com'>developer</a>.
+                Please report any issues to the{' '}
+                <a className='underline' href='mailto:keanejonathan3@gmail.com'>
+                  developer
+                </a>
+                .
               </AlertDescription>
             </Alert>
           </div>
           {/* Query History Accordion */}
-          {queryHistory.length > 0 && (<Accordion type="single" collapsible className="w-full max-w-md mt-4">
-            <AccordionItem value="item-1">
-              <AccordionTrigger className='text-xl font-semibold'>Previous Queries</AccordionTrigger>
-              <AccordionContent>
-                <ul className="space-y-2">
-                  {queryHistory.map((historyQuery, index) => (
-                    <li key={index} className="cursor-pointer hover:bg-accent" onClick={() => handleQuery(historyQuery)}>
-                      {historyQuery}
-                    </li>
-                  ))}
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>)}
+          {queryHistory.length > 0 && (
+            <Accordion
+              type='single'
+              collapsible
+              className='mt-4 w-full max-w-md'
+            >
+              <AccordionItem value='item-1'>
+                <AccordionTrigger className='text-xl font-semibold'>
+                  Previous Queries
+                </AccordionTrigger>
+                <AccordionContent>
+                  <ul className='space-y-2'>
+                    {queryHistory.map((historyQuery, index) => (
+                      <li
+                        key={index}
+                        className='cursor-pointer hover:bg-accent'
+                        onClick={() => handleQuery(historyQuery)}
+                      >
+                        {historyQuery}
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          )}
         </div>
         {/* Right side */}
         <div className='rounded-lg p-4 md:w-1/2'>
           {isLoading ? (
             <div className='flex items-center justify-center'>
-              <FaFutbol className='text-4xl animate-big-bounce text-primary' />
+              <FaFutbol className='animate-big-bounce text-4xl text-primary' />
             </div>
           ) : (
             response && (
