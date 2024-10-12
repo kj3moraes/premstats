@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { SuccessResponse } from '@/lib/query';
 import {
@@ -15,17 +14,11 @@ interface MoreInfoButtonProps {
 }
 
 export default function MoreInfoButton({ responseData }: MoreInfoButtonProps) {
-  const [showDictionary, setShowDictionary] = useState(false);
-
-  const handleToggle = () => {
-    setShowDictionary(!showDictionary);
-  };
-
   return (
     <div>
       <Sheet>
         <SheetTrigger>
-          <Button variant='accent' onClick={handleToggle}>
+          <Button variant='accent'>
             Show full data
           </Button>
         </SheetTrigger>

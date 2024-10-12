@@ -206,12 +206,14 @@ excluded_odds = {
 }
 
 
-def convert_rows_to_essentials(results: List[Row]):
+def convert_rows_to_essentials(results: List[Row]) -> dict:
     dicts = [row._asdict() for row in results]
 
     # Remove None values and odds information
     for d in dicts:
+        del d["id"]
         for k, v in list(d.items()):
-            if v is None or k in excluded_odds:
+            if k in excluded_odds:
                 del d[k]
+
     return dicts
