@@ -8,6 +8,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 import type { BackendResponse, SuccessResponse } from '@/lib/query';
 import SuggestionButton from '@/components/suggestion-button';
+import SubmitButton from '@/components/submit-button';
 import MoreInfoButton from '@/components/info-button';
 import ReactMarkdown from 'react-markdown';
 
@@ -46,6 +47,8 @@ export default function Home() {
     setQuery('');
   };
 
+
+
   return (
     <div className='flex items-center justify-center bg-background p-4 md:p-8'>
       <div className='flex w-full max-w-6xl flex-col md:flex-row md:items-center md:justify-between'>
@@ -56,13 +59,16 @@ export default function Home() {
             <h1 className='mb-4 text-center md:text-left'>premstats.xyz</h1>
           </div>
           <form onSubmit={handleSubmit} className='w-full max-w-md'>
-            <Input
-              type='text'
-              placeholder='Ask about any match or team stats...'
-              className='mb-2 w-full'
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+            <div className='flex mb-2'>
+              <Input
+                type='text'
+                placeholder='Ask about any match or team stats...'
+                className='flex-grow mr-2'
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              <SubmitButton onSubmit={handleSubmit} />
+            </div>
             <p className='mt-2 text-center text-sm text-muted-foreground md:text-left'>
               You can ask about any Premier League season up to but not
               including the current season.
@@ -84,7 +90,7 @@ export default function Home() {
               onQuery={handleQuery}
             />
             <SuggestionButton
-              text='betting odds for Liverpool vs ManU 22/23 away game'
+              text='Betting odds for Liverpool vs ManU 22/23 away game'
               onQuery={handleQuery}
             />
           </div>
@@ -95,7 +101,7 @@ export default function Home() {
               </AlertTitle>
               <AlertDescription>
                 This site is in beta mode and may not be fully functional.
-                Please report any issues to the developer.
+                Please report any issues to the <a className="underline" href='mailto:keanejonathan3@gmail.com'>developer</a>.
               </AlertDescription>
             </Alert>
           </div>
