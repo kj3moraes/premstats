@@ -22,6 +22,7 @@ def get_stats(request: StatsRequest, session: Session = Depends(get_session)):
     try:
         sql_query = get_sql(user_question)
     except Exception:
+        print("Failed to generate the SQL query.")
         raise HTTPException(
             status_code=400,
             detail=f"There currently is a problem with the service. Please try again later.",
@@ -29,11 +30,13 @@ def get_stats(request: StatsRequest, session: Session = Depends(get_session)):
 
     # If the SQL query is invalid, return an error
     if sql_query.lower().strip() == "invalid":
+        print("Failed to parse the question")
         raise HTTPException(
             status_code=400,
             detail=f"Sorry, I couldn't understand your question. Please try again.",
         )
 
+    print(sql_query)
     try:
         # Execute the SQL query
         sql = text(sql_query)
@@ -44,6 +47,7 @@ def get_stats(request: StatsRequest, session: Session = Depends(get_session)):
             detail=f"There currently is a problem with the service. Please try again later.",
         )
 
+    # We need to do this because datetime objects need to converted into dictionaries
     data = [result._asdict() for result in results]
     answer_dicts = convert_rows_to_essentials(results)
     # If the answer dictionary is
