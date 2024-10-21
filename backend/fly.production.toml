@@ -17,6 +17,7 @@ primary_region = 'hkg'
   processes = ['app']
 
 [[vm]]
-  memory = '2gb'
+  size = "shared-cpu-1x"
+  memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
