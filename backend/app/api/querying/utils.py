@@ -35,18 +35,22 @@ CREATE TABLE public.referee (
 	"name" varchar NOT NULL,
 	CONSTRAINT referee_pkey PRIMARY KEY (id)
 );
+CREATE UNIQUE INDEX ix_referee_name ON public.referee USING btree (name);
 
 CREATE TABLE public.season (
 	id serial4 NOT NULL,
 	"name" varchar NOT NULL,
 	CONSTRAINT season_pkey PRIMARY KEY (id)
 );
+CREATE UNIQUE INDEX ix_season_name ON public.season USING btree (name);
 
 CREATE TABLE public.team (
 	id serial4 NOT NULL,
 	"name" varchar NOT NULL,
 	CONSTRAINT team_pkey PRIMARY KEY (id)
 );
+CREATE UNIQUE INDEX ix_team_name ON public.team USING btree (name);
+
 
 CREATE TABLE public."match" (
 	id serial4 NOT NULL,
@@ -107,11 +111,27 @@ CREATE TABLE public."match" (
 	max_under_2_5_odds float8 NULL,
 	avg_over_2_5_odds float8 NULL,
 	avg_under_2_5_odds float8 NULL,
+	asian_handicap_line float8 NULL,
+	bet365_asian_handicap_home_odds float8 NULL,
+	bet365_asian_handicap_away_odds float8 NULL,
+	pinnacle_asian_handicap_home_odds float8 NULL,
+	pinnacle_asian_handicap_away_odds float8 NULL,
+	max_asian_handicap_home_odds float8 NULL,
+	max_asian_handicap_away_odds float8 NULL,
+	avg_asian_handicap_home_odds float8 NULL,
+	avg_asian_handicap_away_odds float8 NULL,
 	CONSTRAINT match_pkey PRIMARY KEY (id),
 	CONSTRAINT match_away_team_name_fkey FOREIGN KEY (away_team_name) REFERENCES public.team("name"),
 	CONSTRAINT match_home_team_name_fkey FOREIGN KEY (home_team_name) REFERENCES public.team("name"),
 	CONSTRAINT match_referee_name_fkey FOREIGN KEY (referee_name) REFERENCES public.referee("name"),
 	CONSTRAINT match_season_name_fkey FOREIGN KEY (season_name) REFERENCES public.season("name")
+);
+
+CREATE TABLE public.stadium (
+	"name" varchar NOT NULL,
+	home_team varchar NULL,
+	CONSTRAINT stadium_pkey PRIMARY KEY (name),
+	CONSTRAINT stadium_home_team_fkey FOREIGN KEY (home_team) REFERENCES public.team("name")
 );
 
 ```sql
