@@ -58,6 +58,29 @@ class TeamFilter(Filter):
         search_model_fields = ["name"]
 
 
+class TeamSeason(SQLModel, table=True):
+    """
+    Mapping between every season a team played in
+    """
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    team_name: Optional[str] = Field(foreign_key="team.name", description="Team name")
+    season_name: Optional[str] = Field(foreign_key="season.name", description="Season")
+
+
+class TeamSeasonFilter(Filter):
+    team_name: Optional[str] = None
+    team_name_ilike: Optional[str] = None
+    season_name: Optional[str] = None
+    season_name_ilike: Optional[str] = None
+    order_by: list[str] = ["team_name"]
+    search: Optional[str] = None
+
+    class Constants(Filter.Constants):
+        model = TeamSeason
+        search_model_fields = ["season_name", "team_name"]
+
+
 class Stadium(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(default=None, index=True)

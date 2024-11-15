@@ -2,7 +2,7 @@ from typing import Annotated, List
 
 from app.core.db import get_session
 from app.core.security import verify_add_token, verify_delete_token, verify_update_token
-from app.models import Team, TeamFilter
+from app.models import Team, TeamFilter, TeamSeason, TeamSeasonFilter
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_filter import FilterDepends
 from pydantic import AfterValidator
@@ -122,3 +122,49 @@ def delete_team(
         raise HTTPException(status_code=404, detail="Team not found")
     session.delete(team)
     session.commit()
+
+
+@router.post(
+    "/season/upsert",
+    response_model=TeamSeason,
+    include_in_schema=False,
+    status_code=status.HTTP_201_CREATED,
+)
+def upsert_team_season(
+    team_season: Annotated[TeamSeason, AfterValidator(TeamSeason.model_validate)],
+    session: Session = Depends(get_session),
+    token: str = Depends(verify_add_token),
+):
+    # Get the existing team_season by the unique combination of team_id and season_id
+    statement = select(TeamSeason).where(
+        TeamSeason.team_name == team_season.team_name,
+        TeamSeason.season_name == team_season.season_name,
+    )
+    db_team_season = session.exec(statement).first()
+
+    # If there is no team_season in the database then take the whole model
+    if db_team_season is None:
+        db_team_season = team_season
+    else:
+        # Otherwise, update the data (not the id)
+        for key, value in team_season.model_dump(exclude={"id"}).items():
+            setattr(db_team_season, key, value)
+
+    session.add(db_team_season)
+    session.commit()
+    session.refresh(db_team_season)
+    return db_team_season
+
+
+@router.get("/season/list", response_model=List[TeamSeason])
+def read_team_seasons(
+    skip: int = 0,
+    limit: int = 100,
+    team_season_filter: TeamSeason = FilterDepends(TeamSeasonFilter),
+    session: Session = Depends(get_session),
+):
+    query = select(TeamSeason)
+    query = team_season_filter.filter(query)
+    query = team_season_filter.sort(query)
+    team_seasons = session.exec(query.offset(skip).limit(limit)).all()
+    return team_seasons
