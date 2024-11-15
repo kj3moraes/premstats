@@ -59,7 +59,7 @@ def create_stadium(
     status_code=status.HTTP_201_CREATED,
 )
 def upsert_stadium(
-    stadium: Annotated[Stadium, AfterValidator(Stadium.model_validate)],
+    stadium: Stadium,
     session: Session = Depends(get_session),
     token: str = Depends(verify_add_token),
 ):
@@ -75,7 +75,9 @@ def upsert_stadium(
         for key, value in stadium.model_dump(exclude={"id"}).items():
             setattr(db_stadium, key, value)
 
-    create_stadium(stadium, session=session, token=token)
+    session.add(db_stadium)
+    session.commit()
+    session.refresh(db_stadium)
     return db_stadium
 
 

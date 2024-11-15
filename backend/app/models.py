@@ -59,15 +59,21 @@ class TeamFilter(Filter):
 
 
 class Stadium(SQLModel, table=True):
-    name: str = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(default=None, index=True)
     home_team: Optional[str] = Field(foreign_key="team.name", description="Home Team")
 
 
 class StadiumFilter(Filter):
+    name: Optional[str] = None
     name_ilike: Optional[str] = None
     home_team_ilike: Optional[str] = None
     order_by: list[str] = ["name"]
     search: Optional[str] = None
+
+    class Constants(Filter.Constants):
+        model = Stadium
+        search_field_name = ["name"]
 
 
 class Referee(SQLModel, table=True):
