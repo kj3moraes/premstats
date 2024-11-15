@@ -1,6 +1,5 @@
 'use client';
 import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import React, { useState } from 'react';
 import { FaFutbol } from 'react-icons/fa';
 import { query_backend } from '@/lib/query';
@@ -85,17 +84,11 @@ export default function Home() {
               including the current season.
             </p>
           </form>
-          <div className='grid w-full max-w-md grid-cols-2 gap-2'>
-            <SuggestionButton
-              text='Seasons QPR played in'
-              onQuery={handleQuery}
-            />
-            <SuggestionButton
-              text='Matches with > 6 goals'
-              onQuery={handleQuery}
-            />
-          </div>
           <div className='flex w-full max-w-md flex-col gap-2'>
+            <SuggestionButton
+              text='What seasons has Norwich played in'
+              onQuery={handleQuery}
+            />
             <SuggestionButton
               text='Matches that Mike Dean refereed in 18/19 season'
               onQuery={handleQuery}
@@ -106,19 +99,6 @@ export default function Home() {
             />
           </div>
           <div>
-            <Alert variant='highlight' className='w-full max-w-md'>
-              <AlertTitle className='text-lg font-semibold'>
-                Heads up!
-              </AlertTitle>
-              <AlertDescription>
-                This site is in beta mode and may not be fully functional.
-                Please report any issues to the{' '}
-                <a className='underline' href='mailto:keanejonathan3@gmail.com'>
-                  developer
-                </a>
-                .
-              </AlertDescription>
-            </Alert>
           </div>
           {/* Query History Accordion */}
           {queryHistory.length > 0 && (
