@@ -1,8 +1,8 @@
 """new table for teams and seasons
 
-Revision ID: 746de7a559a8
+Revision ID: 4ea87909fce2
 Revises: 8727bf09e7dd
-Create Date: 2024-11-15 23:12:04.430341
+Create Date: 2024-11-15 23:25:07.108427
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = '746de7a559a8'
+revision: str = '4ea87909fce2'
 down_revision: Union[str, None] = '8727bf09e7dd'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

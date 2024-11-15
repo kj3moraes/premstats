@@ -63,7 +63,7 @@ class TeamSeason(SQLModel, table=True):
     Mapping between every season a team played in
     """
 
-    id: Optional[int] = Field(primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
     team_name: Optional[str] = Field(foreign_key="team.name", description="Team name")
     season_name: Optional[str] = Field(foreign_key="season.name", description="Season")
 
