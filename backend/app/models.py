@@ -68,7 +68,7 @@ class TeamSeason(SQLModel, table=True):
     season_name: Optional[str] = Field(foreign_key="season.name", description="Season")
 
 
-class TeamSeason(Filter):
+class TeamSeasonFilter(Filter):
     team_name: Optional[str] = None
     team_name_ilike: Optional[str] = None
     season_name: Optional[str] = None
