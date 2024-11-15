@@ -128,10 +128,26 @@ CREATE TABLE public."match" (
 );
 
 CREATE TABLE public.stadium (
+	id serial4 NOT NULL,
 	"name" varchar NOT NULL,
 	home_team varchar NULL,
-	CONSTRAINT stadium_pkey PRIMARY KEY (name),
+	CONSTRAINT stadium_pkey PRIMARY KEY (id),
 	CONSTRAINT stadium_home_team_fkey FOREIGN KEY (home_team) REFERENCES public.team("name")
+);
+CREATE INDEX ix_stadium_name ON public.stadium USING btree (name);
+
+
+-- public.teamseason  
+
+-- table is a mapping for every season a team has played. 
+
+CREATE TABLE public.teamseason (
+	id serial4 NOT NULL,
+	team_name varchar NULL,
+	season_name varchar NULL,
+	CONSTRAINT teamseason_pkey PRIMARY KEY (id),
+	CONSTRAINT teamseason_season_name_fkey FOREIGN KEY (season_name) REFERENCES public.season("name"),
+	CONSTRAINT teamseason_team_name_fkey FOREIGN KEY (team_name) REFERENCES public.team("name")
 );
 
 ```sql
