@@ -267,6 +267,7 @@ if __name__ == "__main__":
         if (
             (stats_folder_path / f).is_file()
             and (stats_folder_path / f).suffix == ".csv"
+            and "prem" in (stats_folder_path / f).stem
         )
     ]
 
