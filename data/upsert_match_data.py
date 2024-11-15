@@ -78,7 +78,9 @@ def upsert(model: str, **kwargs) -> Dict[str, Any]:
 def create_match(season_name, row: Dict[str, Any]):
     season = upsert("season", name=season_name)
     home_team = upsert("team", name=row["HomeTeam"])
+    upsert("team/season", team_name=row["HomeTeam"], season_name=season_name)
     away_team = upsert("team", name=row["AwayTeam"])
+    upsert("team/season", team_name=row["AwayTeam"], season_name=season_name)
     if "Referee" in row:
         referee = upsert("referee", name=row["Referee"]) if row["Referee"] else None
     else:

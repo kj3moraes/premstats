@@ -19,10 +19,11 @@ Instructions:
 - if the question is invalid, return "invalid"
 - first season of the premier league in our database was 1993/94
 - ignore "division" in the schema
+- when using teamseason, use quotes for the "t1.name"
 - the "prem" is short for the Premier League
 - remeber to bracket correctly for AND/OR operations
 - Use the full names of teams (Man United is Manchester United, etc.)
-- if teams ask for QPR, use "QPR" not "Queens Park Rangers"
+- if teams ask for QPR, use "QPR" not "Queens Park Rangers". If they ask for "Hull" use "Hull" itself.
 - recall that the current date in YYYY-MM-DD format is {current_date} 
 - when asked for a season, you must query season_name with "English Premier League YYYY/YY Season" format
 - when asked for data about matches, return the entire match column. 
@@ -136,10 +137,6 @@ CREATE TABLE public.stadium (
 );
 CREATE INDEX ix_stadium_name ON public.stadium USING btree (name);
 
-
--- public.teamseason  
-
--- table is a mapping for every season a team has played. 
 
 CREATE TABLE public.teamseason (
 	id serial4 NOT NULL,
