@@ -24,7 +24,7 @@ def upgrade() -> None:
     op.create_table(
         "stadium",
         sa.Column("name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("home_team", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+        sa.Column("home_team", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.ForeignKeyConstraint(
             ["home_team"],
             ["team.name"],

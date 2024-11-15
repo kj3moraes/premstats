@@ -60,9 +60,14 @@ class TeamFilter(Filter):
 
 class Stadium(SQLModel, table=True):
     name: str = Field(default=None, primary_key=True)
-    home_team: Optional[str] = Field(
-        default=None, foreign_key="team.name", description="Home Team"
-    )
+    home_team: Optional[str] = Field(foreign_key="team.name", description="Home Team")
+
+
+class StadiumFilter(Filter):
+    name_ilike: Optional[str] = None
+    home_team_ilike: Optional[str] = None
+    order_by: list[str] = ["name"]
+    search: Optional[str] = None
 
 
 class Referee(SQLModel, table=True):
