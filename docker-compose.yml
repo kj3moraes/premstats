@@ -64,7 +64,7 @@ services:
     environment:
       - DOMAIN=${DOMAIN}
       - ENVIRONMENT=${ENVIRONMENT}
-      - BACKEND_API_URL=http://localhost:8000
+      - BACKEND_API_URL=${BACKEND_API_URL}
     ports:
       - 3000:3000
     build:
