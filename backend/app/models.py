@@ -58,6 +58,13 @@ class TeamFilter(Filter):
         search_model_fields = ["name"]
 
 
+class Stadium(SQLModel, table=True):
+    name: str = Field(default=None, primary_key=True)
+    home_team: Optional[str] = Field(
+        default=None, foreign_key="team.name", description="Home Team"
+    )
+
+
 class Referee(SQLModel, table=True):
     """
     Represents a match referee.
