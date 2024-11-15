@@ -75,7 +75,7 @@ def upsert_stadium(
         for key, value in stadium.model_dump(exclude={"id"}).items():
             setattr(db_stadium, key, value)
 
-    create_stadium(stadium)
+    create_stadium(stadium, session=session, token=token)
     return db_stadium
 
 
