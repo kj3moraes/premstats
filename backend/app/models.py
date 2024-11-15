@@ -72,7 +72,13 @@ class TeamSeasonFilter(Filter):
     team_name: Optional[str] = None
     team_name_ilike: Optional[str] = None
     season_name: Optional[str] = None
-    season_name_ilike: Optional[str]
+    season_name_ilike: Optional[str] = None
+    order_by: list[str] = ["team_name"]
+    search: Optional[str] = None
+
+    class Constants(Filter.Constants):
+        model = TeamSeason
+        search_model_fields = ["season_name", "team_name"]
 
 
 class Stadium(SQLModel, table=True):

@@ -2,7 +2,7 @@ from typing import Annotated, List
 
 from app.core.db import get_session
 from app.core.security import verify_add_token, verify_delete_token, verify_update_token
-from app.models import Team, TeamFilter, TeamSeason
+from app.models import Team, TeamFilter, TeamSeason, TeamSeasonFilter
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_filter import FilterDepends
 from pydantic import AfterValidator
@@ -137,8 +137,8 @@ def upsert_team_season(
 ):
     # Get the existing team_season by the unique combination of team_id and season_id
     statement = select(TeamSeason).where(
-        TeamSeason.team_id == team_season.team_id,
-        TeamSeason.season_id == team_season.season_id,
+        TeamSeason.team_name == team_season.team_name,
+        TeamSeason.season_name == team_season.season_name,
     )
     db_team_season = session.exec(statement).first()
 
@@ -160,7 +160,7 @@ def upsert_team_season(
 def read_team_seasons(
     skip: int = 0,
     limit: int = 100,
-    team_season_filter: TeamSeason = FilterDepends(TeamSeason),
+    team_season_filter: TeamSeason = FilterDepends(TeamSeasonFilter),
     session: Session = Depends(get_session),
 ):
     query = select(TeamSeason)
