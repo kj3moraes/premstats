@@ -43,13 +43,12 @@ DOMAIN=localhost
 # Environment: local, staging, production
 ENVIRONMENT=local
 
-PROJECT_NAME=<name-of-your-project>
+PROJECT_NAME="premstats"
 
 # Backend
-BACKEND_CORS_ORIGINS="http://localhost,http://localhost:5173,https://localhost,https://localhost:5173"
-SECRET_KEY=<key>
-FIRST_SUPERUSER=keanejonathan3@gmail.com
-FIRST_SUPERUSER_PASSWORD=<password>
+BACKEND_CORS_ORIGINS="http://localhost,http://localhost:3000,https://localhost,https://localhost:3000,https://premstats"
+SECRET_KEY=<secret>
+BACKEND_API_URL=http://localhost:8000
 
 # Postgres
 POSTGRES_SERVER=localhost
@@ -57,6 +56,14 @@ POSTGRES_PORT=5432
 POSTGRES_DB=app
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
+
+# Authentication
+ADD_ACCESS_TOKEN=<secret>
+UPDATE_ACCESS_TOKEN=<secret>
+DELETE_ACCESS_TOKEN=<secret>
+
+# AI Applications 
+TOGETHER_API_KEY=<your-together-api-key>
 
 # Configure these with your own Docker registry images
 DOCKER_IMAGE_BACKEND=backend
@@ -68,6 +75,8 @@ The above .env file will ensure that your application runs locally. To run the s
 ```bash
 docker compose up --build
 ```
+
+(Tip: To get a secret key quickly, type the following in your shell `python3 -c "import secrets; print(secrets.token_hex(64))". This will generate a random 64-character hexadecimal string (128-bit security effectively))
 
 This will do 3 things:
 
